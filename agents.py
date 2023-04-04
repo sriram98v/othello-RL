@@ -3,7 +3,7 @@ from function_approx import Q_Network
 import numpy as np
 from helper import *
 
-class Agent:
+class Q_Agent:
     def __init__(self):
         self.q_func = Q_Network()
         self.alpha = 1
@@ -29,11 +29,11 @@ class Rand_Agent:
     def __init__(self):
         None
     
-    def rand_move(legal_moves):
+    def rand_move(self, legal_moves):
         '''
             @param curr_state --> current state of the board
             @param legalmoves --> list of moves
 
             @return a random moves from legalmoves
         '''
-        return np.random.choice(legal_moves)
+        return legal_moves[np.random.randint(len(legal_moves))]
