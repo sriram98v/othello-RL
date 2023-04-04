@@ -31,11 +31,11 @@ class Rand_Agent:
     def __init__(self):
         None
     
-    def rand_move(legalmoves):
+    def rand_move(legal_moves):
         '''
             @param curr_state --> current state of the board
             @param legalmoves --> list of moves
 
             @return a random moves from legalmoves
         '''
-        return np.random.choice(legalmoves)
+        return np.random.choice(legal_moves)
