@@ -1,7 +1,7 @@
-# Author/s: Yee Chuen Teoh          (Author that contribute to the script)
-# Title: helper.py                      (the name of the script)
-# Project: OTHELLO-RL      (the main project name, what project this script is apart of?)
-# Description: helper methods/functions for 673 RL project    (summary of what the script does)
+# Author/s: Yee Chuen Teoh                                  (Author that contribute to the script)
+# Title: helper.py                                          (the name of the script)
+# Project: OTHELLO-RL                                       (the main project name, what project this script is apart of?)
+# Description: helper methods/functions for 673 RL project  (summary of what the script does)
 # Reference/Directions:
 '''
 Usage:
@@ -58,5 +58,5 @@ def main():
 if __name__ == "__main__":
     # TODO: change your python script title
     print("\n-------------------- START of \"<helper.py>\" script --------------------")
-    main()
+    main()                
     print("-------------------- END of \"<helper.py>\" script --------------------\n")
