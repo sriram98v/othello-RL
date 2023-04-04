@@ -15,4 +15,6 @@ print(agent.play(board.get_current_state(), board.get_valid_moves(agent_color)))
 
 current_state, legal_moves = board.get_current_state(), board.get_valid_moves()
 q_vals = agent.q_vals(current_state)
-best_move = agent.greedy_move(current_state, legal_moves) #here we may have to change to epsilon policy, as we have implemented a greedy policy.
+agent_move = agent.greedy_move(current_state, legal_moves) #here we may have to change to epsilon policy, as we have implemented a greedy policy.
+
+board.play(agent_move,agent_color)

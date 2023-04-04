@@ -23,3 +23,6 @@ class Agent:
 
     def q_vals(self, state):
         return self.q_func(torch.from_numpy(state)).detach().numpy()
+    
+    def learn(self, prev_state, current_state, next_state, action):
+        q_new = 
