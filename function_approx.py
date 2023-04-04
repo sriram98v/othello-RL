@@ -21,3 +21,4 @@ class Q_Network(torch.nn.Module):
         x = self.sigmoid2(x)
         
         return x
+    
