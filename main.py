@@ -21,14 +21,15 @@ q_vals = agent.q_vals(current_state)
 # print('q values: ' ,q_vals)
 agent_move = agent.greedy_move(q_vals, legal_moves) #here we may have to change to epsilon policy, as we have implemented a greedy policy.
 
-board.play(agent_move,agent_color)
+reward = board.play(agent_move,agent_color)
 
 # print(board.get_current_state())
-print(board.print_board())
+board.print_board()
+print()
 
 current_state, legal_moves = board.get_current_state(), board.get_valid_moves(other_color)
 other_move = other.rand_move(legal_moves)
-board.play(other_move,other_color)
+reward = board.play(other_move,other_color)
 
 # print(board.get_current_state())
-print(board.print_board())
+board.print_board()

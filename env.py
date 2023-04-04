@@ -5,6 +5,7 @@ Game logic.
 
 from copy import deepcopy
 import numpy as np
+from helper import *
 
 EMPTY = 0
 BLACK = 1
@@ -119,10 +120,22 @@ class Board:
     def play(self, move, color):
         """ Determine if the move is correct and apply the changes in the game.
         """
+        current_board = deepcopy(self.board)
         if move in self.valid_moves:
             self.board[move[0]][move[1]] = color
             for i in range(1, 9):
                 self.flip(i, move, color)
+        new_board = deepcopy(self.board)
+        if self.game_ended():
+            white, black, empty = self.counts()
+            if white==black:
+                return 0.5
+            elif white>black:
+                return 1.0
+            else:
+                return 0.0
+        else:
+            return 0.0 # replace with reward func in future
 
     def flip(self, direction, position, color):
         """ Flips (capturates) the pieces of the given color in the given direction
