@@ -15,14 +15,16 @@ Usage:
 '''
 
 #____________________________________________________________________________________________________
-# imports 
+# imports
+import scipy
+from scipy.spatial.distance import hamming
 
 #____________________________________________________________________________________________________
 # functions/set ups
 
 def pos_to_index(i,j):
     '''
-    input: 
+    input:
         @param i,j --> 2dim coordinate in the board
 
     output:
@@ -33,10 +35,10 @@ def pos_to_index(i,j):
         return -1
     else:
         return 8*i+j
-    
+
 def index_to_pos(n):
     '''
-    input: 
+    input:
         @param n --> 1dim location in vertex of some coordinate
 
     output:
@@ -49,12 +51,27 @@ def index_to_pos(n):
         j=n%8
         i=int((n-j)/8)
         return (i,j)
-     
-def main():    
+
+def hamming_distance(array_1, array_2):
+    distance = hamming(array_1, array_2)
+    return distance
+
+def rewards(array_1, array_2):
+    '''
+    input:
+        @param array_1 -> numpy array 1
+        @param array_2 -> numpy array 2
+    output:
+        @return hamming_distance -> hamming distance of array 1 and array 2
+    '''
+    return hamming_distance(array_1, array_2)
+
+
+def main():
     pass
 
 #____________________________________________________________________________________________________
-# main 
+# main
 if __name__ == "__main__":
     # TODO: change your python script title
     print("\n-------------------- START of \"<helper.py>\" script --------------------")
