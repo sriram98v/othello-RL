@@ -1,7 +1,7 @@
-# Author/s: Yee Chuen Teoh          (Author that contribute to the script)
-# Title: helper.py                      (the name of the script)
-# Project: OTHELLO-RL      (the main project name, what project this script is apart of?)
-# Description: helper methods/functions for 673 RL project    (summary of what the script does)
+# Author/s: Yee Chuen Teoh                                  (Author that contribute to the script)
+# Title: helper.py                                          (the name of the script)
+# Project: OTHELLO-RL                                       (the main project name, what project this script is apart of?)
+# Description: helper methods/functions for 673 RL project  (summary of what the script does)
 # Reference/Directions:
 '''
 Usage:
@@ -10,12 +10,14 @@ Usage:
 # Updates:  (4/4/2023)
 '''
 4/4/2023
+    - import numpy
     - addition of two helper functions pos_to_index and index_to_pos
     - creation of the script
 '''
 
 #____________________________________________________________________________________________________
 # imports
+import numpy as np
 import scipy
 from scipy.spatial.distance import hamming
 
