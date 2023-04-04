@@ -10,12 +10,14 @@ Usage:
 # Updates:  (4/4/2023)
 '''
 4/4/2023
+    - import numpy
     - addition of two helper functions pos_to_index and index_to_pos
     - creation of the script
 '''
 
 #____________________________________________________________________________________________________
 # imports 
+import numpy as np
 
 #____________________________________________________________________________________________________
 # functions/set ups
@@ -58,5 +60,5 @@ def main():
 if __name__ == "__main__":
     # TODO: change your python script title
     print("\n-------------------- START of \"<helper.py>\" script --------------------")
-    main()                
+    main()           
     print("-------------------- END of \"<helper.py>\" script --------------------\n")

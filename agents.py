@@ -25,4 +25,17 @@ class Agent:
         return self.q_func(torch.from_numpy(state)).detach().numpy()
     
     def learn(self, prev_state, current_state, next_state, action):
-        q_new = 
+        q_new = None
+
+class Rand_Agent:
+    def __init__(self):
+        None
+    
+    def rand_move(legalmoves):
+        '''
+            @param curr_state --> current state of the board
+            @param legalmoves --> list of moves
+
+            @return a random moves from legalmoves
+        '''
+        return np.random.choice(legalmoves)
