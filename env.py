@@ -4,19 +4,17 @@ Game logic.
 """
 
 from copy import deepcopy
+import numpy as np
 
 EMPTY = 0
 BLACK = 1
-WHITE = 2
+WHITE = -1
 
 class Board:
 
     """ Rules of the game """
 
     def __init__(self):
-        self.empty = 0
-        self.black = 1
-        self.white = 2
         self.board = [[0, 0, 0, 0, 0, 0, 0, 0],
                       [0, 0, 0, 0, 0, 0, 0, 0],
                       [0, 0, 0, 0, 0, 0, 0, 0],
@@ -32,9 +30,6 @@ class Board:
         self.valid_moves = []
 
     def reset(self):
-        self.empty = 0
-        self.black = 1
-        self.white = 2
         self.board = [[0, 0, 0, 0, 0, 0, 0, 0],
                       [0, 0, 0, 0, 0, 0, 0, 0],
                       [0, 0, 0, 0, 0, 0, 0, 0],
@@ -245,10 +240,12 @@ class Board:
     def next_states(self, color):
         """Given a player's color return all the boards resulting from moves
         that this player cand do. It's implemented as an iterator.
-
         """
         valid_moves = self.get_valid_moves(color)
         for move in valid_moves:
             newBoard = deepcopy(self)
             newBoard.apply_move(move, color)
             yield newBoard
+
+    def get_current_state(self):
+        return np.array(deepcopy(self.board), dtype=np.float32).flatten()
