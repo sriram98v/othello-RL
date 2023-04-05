@@ -66,6 +66,9 @@ class Q_Agent:
         loss.backward() # Compute gradients
         self.optimizer.step() # Backpropagate error
 
+    def export_model(self, fname):
+        torch.save(self.model.state_dict(), fname)
+
     
 class Rand_Agent:
     def __init__(self):
