@@ -6,11 +6,13 @@ import random
 
 class Q_Agent:
     def __init__(self):
-        self.q_func = Q_Network()
+        self.model = Q_Network()
         self.alpha = 1
         self.gamma = 1
         self.eps = 0
         self.loss_func = torch.nn.MSELoss()
+        self.lr = 0.01
+        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=0.1, momentum=0.9)
 
     def act(self, q_vals, legal_moves): #This is a greedy policy, we can replace with epsilon later
         values = []
@@ -23,7 +25,29 @@ class Q_Agent:
             return legal_moves[np.random.randint(len(legal_moves))]
 
     def q_vals(self, state):
-        return self.q_func(torch.from_numpy(state)).detach().numpy()
+        return self.model(torch.from_numpy(state)).detach().numpy()
+    
+    def learn(self, s, a, r, s_):
+        """updates model for a single step
+
+        Args:
+            s (np.array): current state
+            a (np.array): action
+            r (float): reward
+            s_ (np.array): next state
+
+        Returns:
+            None: None
+        """
+        self.optimizer.zero_grad()
+        # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a) 
+        target = None # Compute expected value 
+        current = None # compute actual value
+        
+        loss = self.loss(current, target)
+        loss.backward() # Compute gradients
+        self.optimizer.step() # Backpropagate error
+
     
 class Rand_Agent:
     def __init__(self):
