@@ -37,7 +37,6 @@ board.print_board()
 next_state = board.get_current_state()
 agent.learn(current_state, agent_move, reward, next_state)
 """
-
 counter = 3
 check = True
 while check: 
