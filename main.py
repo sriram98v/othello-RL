@@ -37,28 +37,35 @@ board.print_board()
 next_state = board.get_current_state()
 agent.learn(current_state, agent_move, reward, next_state)
 """
-counter = 3
-check = True
-while check: 
-    if board.game_ended():
-        break
-    else:
-        if counter % 2 == 0:
-            player = other
-            color = other_color
+while True:
+    counter = 3
+    check = True
+    board.reset()
+    while check: 
+        if board.game_ended():
+            break
         else:
-            player = agent
-            color = agent_color
+            if counter % 2 == 0:
+                color = other_color
+            else:
+                color = agent_color
 
-    if color == 'WHITE':
-        current_state, legal_moves = board.get_current_state(), board.get_valid_moves(color)
-        other_move = other.rand_move(legal_moves)
-        reward = board.play(other_move,color)
-    else:
-        current_state, legal_moves = board.get_current_state(), board.get_valid_moves(color)
-        q_vals = agent.q_vals(current_state)
-        agent_move = agent.act(q_vals, legal_moves)
-        reward = board.play(agent_move,color)
-    board.print_board()
-    print()
-    counter += 1
+        if color == 'WHITE':
+            current_state, legal_moves = board.get_current_state(), board.get_valid_moves(color)
+            other_move = other.rand_move(legal_moves)
+            reward = board.play(other_move,color)
+        else:
+            current_state, legal_moves = board.get_current_state(), board.get_valid_moves(color)
+            q_vals = agent.q_vals(current_state)
+            agent_move = agent.act(q_vals, legal_moves)
+            reward = board.play(agent_move,color)
+
+        
+        
+        # board.print_board()
+        # print()
+        counter += 1
+
+    print(board.count_stones())
+    if board.count_stones()[2]>0:
+        break
