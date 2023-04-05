@@ -9,7 +9,7 @@ class Q_Agent:
         self.model = Q_Network()
         self.alpha = 1
         self.gamma = 1
-        self.eps = 0 # change in future
+        self.eps = 0.9 # change in future
         self.loss_func = torch.nn.MSELoss()
         self.lr = 0.01
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=0.1, momentum=0.9)
@@ -25,6 +25,7 @@ class Q_Agent:
             tuple: xy position on the board
         """
         values = []
+        print(len(legal_moves))
         for move in legal_moves:
             values.append(q_vals[pos_to_index(move[0], move[1])])
         
