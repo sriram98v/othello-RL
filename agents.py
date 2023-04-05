@@ -14,7 +14,16 @@ class Q_Agent:
         self.lr = 0.01
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=0.1, momentum=0.9)
 
-    def act(self, q_vals, legal_moves): #This is a greedy policy, we can replace with epsilon later
+    def act(self, q_vals, legal_moves):
+        """Chooses an action givena  current state using an epsilon greedy policy
+
+        Args:
+            q_vals (np.array): q values of all actions for a state
+            legal_moves (list): all legal moves on the board
+
+        Returns:
+            tuple: xy position on the board
+        """
         values = []
         for move in legal_moves:
             values.append(q_vals[pos_to_index(move[0], move[1])])
@@ -25,6 +34,14 @@ class Q_Agent:
             return legal_moves[np.random.randint(len(legal_moves))]
 
     def q_vals(self, state):
+        """Return q values of all actions given a state
+
+        Args:
+            state (np.array): State
+
+        Returns:
+            np.array: q_values
+        """
         return self.model(torch.from_numpy(state)).detach().numpy()
     
     def learn(self, s, a, r, s_):
