@@ -127,7 +127,7 @@ class Board:
                 self.flip(i, move, color)
         new_board = deepcopy(self.board)
         if self.game_ended():
-            white, black, empty = self.counts()
+            white, black, empty = self.count_stones()
             if white==black:
                 return 0.5
             elif white>black:

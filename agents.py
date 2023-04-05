@@ -9,13 +9,13 @@ class Q_Agent:
         self.model = Q_Network()
         self.alpha = 1
         self.gamma = 1
-        self.eps = 0
+        self.eps = 0 # change in future
         self.loss_func = torch.nn.MSELoss()
         self.lr = 0.01
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=0.1, momentum=0.9)
 
     def act(self, q_vals, legal_moves):
-        """Chooses an action givena  current state using an epsilon greedy policy
+        """Chooses an action given a current state using an epsilon greedy policy
 
         Args:
             q_vals (np.array): q values of all actions for a state
@@ -49,7 +49,7 @@ class Q_Agent:
 
         Args:
             s (np.array): current state
-            a (np.array): action
+            a (tuple): position on board
             r (float): reward
             s_ (np.array): next state
 
@@ -58,10 +58,11 @@ class Q_Agent:
         """
         self.optimizer.zero_grad()
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a) 
-        target = None # Compute expected value 
-        current = None # compute actual value
+        target = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_)))) # Compute expected value 
+        current = self.model(torch.from_numpy(s))[pos_to_index(a[0], a[1])] # compute actual value
+
         
-        loss = self.loss(current, target)
+        loss = self.loss_func(current, target)
         loss.backward() # Compute gradients
         self.optimizer.step() # Backpropagate error
 
