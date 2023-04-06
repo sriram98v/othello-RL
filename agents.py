@@ -4,6 +4,7 @@ import numpy as np
 from helper import *
 import random
 from env import *
+import copy
 
 class Q_Agent:
     def __init__(self):
@@ -107,10 +108,20 @@ class Heu_Agent:
         # TODO: make state_2d to list of list
         b.board = state_2d
 
-        # TODO: for all legal action, check the eval_function
-        # TODO: some way to loop through all legal action and pick the one with the highest eval
+        valid_moves = b.get_valid_moves(self.color)
+        eval_max = 0    # eval_max to store the highest eval:
+        global best_move
+        for move in valid_moves:
+            b_after_action = Board()
+            b_after_action.board = copy.deepcopy(b.board)
+            b_after_action.play(move, self.color)       # play a move on a copy board (prevent reference that might mess with actual)
+            # TODO: new varaible convert_board, convert board so that the integer matches the color
+            new_eval = self.eval_function(convert_board)
+            if  new_eval > eval_max:
+                eval_max = new_eval
+                best_move = move
 
-        # TODO: return a legal moves
+        return best_move
 
     
 class Rand_Agent:
