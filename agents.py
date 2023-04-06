@@ -5,16 +5,22 @@ from helper import *
 import random
 
 class Q_Agent:
-    def __init__(self):
-        self.model = Q_Network()
-        self.alpha = 1
-        self.gamma = 1
-        self.eps = 0.9 # change in future
-        self.loss_func = torch.nn.MSELoss()
-        self.lr = 0.01
-        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=0.1, momentum=0.9)
+    def __init__(self, alpha=0.01, gamma=1, eps=0.1):
+        """_summary_
 
-    def act(self, q_vals, legal_moves):
+        Args:
+            alpha (float, optional): learning rate of the NN. Defaults to 0.01.
+            gamma (int, optional): discount factor. Defaults to 1.
+            eps (float, optional): exploration parameter. Defaults to 0.1.
+        """
+        self.model = Q_Network()
+        self.alpha = alpha
+        self.gamma = gamma
+        self.eps = eps # change in future
+        self.loss_func = torch.nn.MSELoss()
+        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.alpha, momentum=0.9)
+
+    def act(self, state, legal_moves):
         """Chooses an action given a current state using an epsilon greedy policy
 
         Args:
@@ -24,6 +30,7 @@ class Q_Agent:
         Returns:
             tuple: xy position on the board
         """
+        q_vals = self.model(torch.from_numpy(state)).detach().numpy()
         values = []
         # print(len(legal_moves))
         for move in legal_moves:
@@ -67,8 +74,12 @@ class Q_Agent:
         loss.backward() # Compute gradients
         self.optimizer.step() # Backpropagate error
 
-    def export_model(self, fname):
+    def export_model(self, fname="./q_model.pth"):
         torch.save(self.model.state_dict(), fname)
+
+    def import_model(self, fname="./q_model.pth"):
+        self.model.load_state_dict(torch.load(fname))
+
 
     
 class Rand_Agent:
