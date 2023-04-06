@@ -25,7 +25,7 @@ class Q_Agent:
             tuple: xy position on the board
         """
         values = []
-        print(len(legal_moves))
+        # print(len(legal_moves))
         for move in legal_moves:
             values.append(q_vals[pos_to_index(move[0], move[1])])
         
