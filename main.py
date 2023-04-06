@@ -54,6 +54,7 @@ while True:
                 color = agent_color
         current_state, legal_moves = board.get_current_state(), board.get_valid_moves(color)
         if len(legal_moves)==0:
+            counter += 1
             continue
         if color == 'WHITE':        
             move = other.rand_move(legal_moves)
