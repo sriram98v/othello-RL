@@ -71,18 +71,47 @@ class Q_Agent:
     def export_model(self, fname):
         torch.save(self.model.state_dict(), fname)
 
+HEUR =  [[100, -25, 10, 5, 5, 10, -25, 100],
+        [-25, -25, 2, 2, 2, 2, -25, -25],
+        [10, 0, 0, 0, 0, 0, 0, 0],
+        [5, 0, 0, 0, 0, 0, 0, 0],
+        [5, 0, 0, 0, 0, 0, 0, 0],
+        [10, 0, 0, 0, 0, 0, 0, 0],
+        [-25, -25, 0, 0, 0, 0, 0, 0],
+        [100, -25, 0, 0, 0, 0, 0, 0]]
+
 class Heu_Agent:
-    def __init__(self, heuristics, color=WHITE):
+    def __init__(self, heuristic=HEUR, color=WHITE):
         '''
             @param heuristics --> heuristics of hard coded (2D grid)
             @param color --> color pieces of the heuristic agent
         '''
         self.color = WHITE
-        self.heu = heuristics
+        self.heur = heuristic
 
-    def eval_function():
+    def eval_function(self, curr_board):
+        '''
+        calculate the sum of c_i*w_i using heur and current board information
 
-    def heu_move():
+            @param curr_board --> current board 
+
+            @return result --> an integer after the calculation
+        '''
+
+    def heu_move(self, state):
+        '''
+            @param state --> a 1D state of the current board
+        '''
+        state_2d = state.reshape((8,8))
+        b = Board()
+        # TODO: make state_2d to list of list
+        b.board = state_2d
+
+        # TODO: for all legal action, check the eval_function
+        # TODO: some way to loop through all legal action and pick the one with the highest eval
+
+        # TODO: return a legal moves
+
     
 class Rand_Agent:
     def __init__(self):
