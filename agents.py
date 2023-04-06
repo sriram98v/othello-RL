@@ -4,6 +4,7 @@ import numpy as np
 from helper import *
 import random
 from env import *
+import copy
 
 class Q_Agent:
     def __init__(self, alpha=0.01, gamma=1, eps=0.1):
@@ -36,7 +37,7 @@ class Q_Agent:
         # print(len(legal_moves))
         for move in legal_moves:
             values.append(q_vals[pos_to_index(move[0], move[1])])
-        
+
         if random.random() > self.eps:
             return legal_moves[np.argmax(np.array(values))]
         else:
@@ -52,7 +53,7 @@ class Q_Agent:
             np.array: q_values
         """
         return self.model(torch.from_numpy(state)).detach().numpy()
-    
+
     def learn(self, s, a, r, s_):
         """updates model for a single step
 
@@ -66,44 +67,97 @@ class Q_Agent:
             None: None
         """
         self.optimizer.zero_grad()
-        # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a) 
-        target = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_)))) # Compute expected value 
+        # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
+        target = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_)))) # Compute expected value
         current = self.model(torch.from_numpy(s))[pos_to_index(a[0], a[1])] # compute actual value
 
-        
+
         loss = self.loss_func(current, target)
         loss.backward() # Compute gradients
         self.optimizer.step() # Backpropagate error
 
     def export_model(self, fname="./q_model.pth"):
         torch.save(self.model.state_dict(), fname)
-
+        
     def import_model(self, fname="./q_model.pth"):
         self.model.load_state_dict(torch.load(fname))
 
 
+HEUR =  [[100, -25, 10, 5, 5, 10, -25, 100],
+        [-25, -25, 2, 2, 2, 2, -25, -25],
+        [10, 0, 0, 0, 0, 0, 0, 0],
+        [5, 0, 0, 0, 0, 0, 0, 0],
+        [5, 0, 0, 0, 0, 0, 0, 0],
+        [10, 0, 0, 0, 0, 0, 0, 0],
+        [-25, -25, 0, 0, 0, 0, 0, 0],
+        [100, -25, 0, 0, 0, 0, 0, 0]]
 class Heu_Agent:
-    def __init__(self, heuristics, color=WHITE):
+    def __init__(self, heuristic=HEUR, color=WHITE):
         '''
+        input:
             @param heuristics --> heuristics of hard coded (2D grid)
             @param color --> color pieces of the heuristic agent
         '''
-        self.color = WHITE
-        self.heu = heuristics
+        self.color = color
+        self.heur = heuristic
 
-    def eval_function():
+    def eval_function(self, curr_board):
+        '''
+        calculate the sum of c_i*w_i using heur and current board information
+        input:
+            @param curr_board --> current board, where self pieces = 1, opponent = -1, empty = 0
+        output:
+            @return result --> an integer after the calculation
+        '''
+        eval_score = 0
+        mul = np.multiply(curr_board, HEUR)
+        eval_score = np.sum(mul)
+        return eval_score
 
-    def heu_move():
+
+    def heu_move(self, state):
+        '''
+        input:
+            @param state --> a 1D state of the current board
+        output:
+            @return best_move --> select the best move out of all legal move for the move that return highest eval_function
+        '''
+        state_2d = state.reshape((8,8))
+        b = Board()
+        b.board = list(state_2d)    # list(<array>) should change it to list of list. double check.
+
+        valid_moves = b.get_valid_moves(self.color)
+        eval_max = 0    # eval_max to store the highest eval
+        best_move = None
+
+        for move in valid_moves:
+            b_after_action = Board()    # new board to prevent referencing game board
+            b_after_action.board = copy.deepcopy(b.board)
+            b_after_action.play(move, self.color)       # play a move on a copy board (prevent reference that might mess with actual)
+            
+            convert_board = copy.deepcopy(b_after_action.board)
+            # WHITE = -1, BLACK = 1 in env.py
+            # so if color is WHITE, we need to invert to feed to eval_function
+            if self.color == WHITE:
+                convert_board=invert_board(copy.deepcopy(b_after_action.board))
+
+            new_eval = self.eval_function(convert_board)
+            if  new_eval > eval_max:
+                eval_max = new_eval
+                best_move = move
+
+        return best_move
     
 class Rand_Agent:
     def __init__(self):
         None
-    
+
     def rand_move(self, legal_moves):
         '''
+        input:
             @param curr_state --> current state of the board
             @param legalmoves --> list of moves
-
+        output:
             @return a random moves from legalmoves
         '''
         return legal_moves[np.random.randint(len(legal_moves))]
