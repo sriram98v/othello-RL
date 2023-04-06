@@ -114,11 +114,10 @@ class Heu_Agent:
         '''
         state_2d = state.reshape((8,8))
         b = Board()
-        # TODO: make state_2d to list of list
-        b.board = state_2d
+        b.board = list(state_2d)    # list(<array>) should change it to list of list. double check.
 
         valid_moves = b.get_valid_moves(self.color)
-        eval_max = 0    # eval_max to store the highest eval:
+        eval_max = 0    # eval_max to store the highest eval
         best_move = None
 
         for move in valid_moves:
