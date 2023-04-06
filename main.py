@@ -1,47 +1,24 @@
 from env import *
-from function_approx import Q_Network
-import torch
 from agents import *
+import tqdm
+
+NUM_EPISODES = 10000
+ALPHA = 0.01
+GAMMA = 1
+EPS = 0.1
 
 board = Board()
-agent = Q_Agent()
+agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
 other = Rand_Agent()
 agent_color = BLACK
 other_color = WHITE
-NUM_EPISODES = 100
 
-"""print('get current state')
-print(board.get_current_state())
-print()
+pbar = tqdm.tqdm(total=NUM_EPISODES)
 
-# print(agent.play(board.get_current_state(), board.get_valid_moves(agent_color)))
-
-current_state, legal_moves = board.get_current_state(), board.get_valid_moves(agent_color)
-q_vals = agent.q_vals(current_state)
-# print('q values: ' ,q_vals)
-agent_move = agent.act(q_vals, legal_moves) #here we may have to change to epsilon policy, as we have implemented a greedy policy.
-
-reward = board.play(agent_move,agent_color)
-
-# print(board.get_current_state())
-board.print_board()
-print()
-
-other_state, other_legal_moves = board.get_current_state(), board.get_valid_moves(other_color)
-other_move = other.rand_move(other_legal_moves)
-other_reward = board.play(other_move,other_color)
-
-# print(board.get_current_state())
-board.print_board()
-
-next_state = board.get_current_state()
-agent.learn(current_state, agent_move, reward, next_state)
-"""
-while True:
+for _ in range(NUM_EPISODES):
     counter = 3
     check = True
     board.reset()
-    print("new game")
     while check: 
         if board.game_ended():
             break
@@ -59,19 +36,19 @@ while True:
         if color == 'WHITE':        
             move = other.rand_move(legal_moves)
         else:
-            q_vals = agent.q_vals(current_state)
-            move = agent.act(q_vals, legal_moves)
+            move = agent.act(current_state, legal_moves)
 
         reward = board.play(move,color)
-        print(color)
-        board.print_board()
-        print()
+        # print(color)
+        # board.print_board()
+        # print()
         counter += 1
-white_count, black_count, empty_count = board.count_stones()
+    white_count, black_count, empty_count = board.count_stones()
+    pbar.update(1)
 
-if white_count > black_count:
-    print('agent win')
-elif black_count > white_count:
-    print('other win')
-else:
-    print('Draw game')
+    # if white_count > black_count:
+    #     # pbar.write('agent win')
+    # elif black_count > white_count:
+    #     # pbar.write('other win')
+    # else:
+    #     # pbar.write('Draw game')
