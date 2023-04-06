@@ -84,24 +84,28 @@ HEUR =  [[100, -25, 10, 5, 5, 10, -25, 100],
 class Heu_Agent:
     def __init__(self, heuristic=HEUR, color=WHITE):
         '''
+        input:
             @param heuristics --> heuristics of hard coded (2D grid)
             @param color --> color pieces of the heuristic agent
         '''
-        self.color = WHITE
+        self.color = color
         self.heur = heuristic
 
     def eval_function(self, curr_board):
         '''
         calculate the sum of c_i*w_i using heur and current board information
-
-            @param curr_board --> current board 
-
+        input:
+            @param curr_board --> current board, where self pieces = 1, opponent = -1, empty = 0
+        output:
             @return result --> an integer after the calculation
         '''
 
     def heu_move(self, state):
         '''
+        input:
             @param state --> a 1D state of the current board
+        output:
+            @return best_move --> select the best move out of all legal move for the move that return highest eval_function
         '''
         state_2d = state.reshape((8,8))
         b = Board()
@@ -110,19 +114,25 @@ class Heu_Agent:
 
         valid_moves = b.get_valid_moves(self.color)
         eval_max = 0    # eval_max to store the highest eval:
-        global best_move
+        best_move = None
+
         for move in valid_moves:
-            b_after_action = Board()
+            b_after_action = Board()    # new board to prevent referencing game board
             b_after_action.board = copy.deepcopy(b.board)
             b_after_action.play(move, self.color)       # play a move on a copy board (prevent reference that might mess with actual)
-            # TODO: new varaible convert_board, convert board so that the integer matches the color
+            
+            convert_board = copy.deepcopy(b_after_action.board)
+            # WHITE = -1, BLACK = 1 in env.py
+            # so if color is WHITE, we need to invert to feed to eval_function
+            if self.color == WHITE:
+                convert_board=invert_board(copy.deepcopy(b_after_action.board))
+
             new_eval = self.eval_function(convert_board)
             if  new_eval > eval_max:
                 eval_max = new_eval
                 best_move = move
 
         return best_move
-
     
 class Rand_Agent:
     def __init__(self):
@@ -130,9 +140,10 @@ class Rand_Agent:
     
     def rand_move(self, legal_moves):
         '''
+        input:
             @param curr_state --> current state of the board
             @param legalmoves --> list of moves
-
+        output:
             @return a random moves from legalmoves
         '''
         return legal_moves[np.random.randint(len(legal_moves))]
