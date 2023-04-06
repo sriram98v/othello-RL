@@ -3,6 +3,7 @@ from function_approx import Q_Network
 import numpy as np
 from helper import *
 import random
+from env import *
 
 class Q_Agent:
     def __init__(self):
@@ -70,6 +71,18 @@ class Q_Agent:
     def export_model(self, fname):
         torch.save(self.model.state_dict(), fname)
 
+class Heu_Agent:
+    def __init__(self, heuristics, color=WHITE):
+        '''
+            @param heuristics --> heuristics of hard coded (2D grid)
+            @param color --> color pieces of the heuristic agent
+        '''
+        self.color = WHITE
+        self.heu = heuristics
+
+    def eval_function():
+
+    def heu_move():
     
 class Rand_Agent:
     def __init__(self):
