@@ -30,7 +30,7 @@ class Q_Agent:
         # print(len(legal_moves))
         for move in legal_moves:
             values.append(q_vals[pos_to_index(move[0], move[1])])
-        
+
         if random.random() > self.eps:
             return legal_moves[np.argmax(np.array(values))]
         else:
@@ -46,7 +46,7 @@ class Q_Agent:
             np.array: q_values
         """
         return self.model(torch.from_numpy(state)).detach().numpy()
-    
+
     def learn(self, s, a, r, s_):
         """updates model for a single step
 
@@ -60,11 +60,11 @@ class Q_Agent:
             None: None
         """
         self.optimizer.zero_grad()
-        # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a) 
-        target = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_)))) # Compute expected value 
+        # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
+        target = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_)))) # Compute expected value
         current = self.model(torch.from_numpy(s))[pos_to_index(a[0], a[1])] # compute actual value
 
-        
+
         loss = self.loss_func(current, target)
         loss.backward() # Compute gradients
         self.optimizer.step() # Backpropagate error
@@ -99,6 +99,11 @@ class Heu_Agent:
         output:
             @return result --> an integer after the calculation
         '''
+        eval_score = 0
+        mul = np.multiply(curr_board, HEUR)
+        eval_score = np.sum(mul)
+        return eval_score
+
 
     def heu_move(self, state):
         '''
@@ -137,7 +142,7 @@ class Heu_Agent:
 class Rand_Agent:
     def __init__(self):
         None
-    
+
     def rand_move(self, legal_moves):
         '''
         input:
