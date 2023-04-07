@@ -105,7 +105,7 @@ class Heu_Agent:
         return eval_score
 
 
-    def heu_move(self, state):
+    def heu_move(self, state, valid_moves):
         '''
         input:
             @param state --> a 1D state of the current board
@@ -116,7 +116,6 @@ class Heu_Agent:
         b = Board()
         b.board = list(state_2d)    # list(<array>) should change it to list of list. double check.
 
-        valid_moves = b.get_valid_moves(self.color)
         eval_max = 0    # eval_max to store the highest eval
         best_move = None
 
