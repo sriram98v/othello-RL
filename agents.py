@@ -64,33 +64,35 @@ class Q_Agent:
             s_ (np.array): next state
 
         Returns:
-            None: None
+            loss: float
         """
         self.optimizer.zero_grad()
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
         target = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_)))) # Compute expected value
-        current = self.model(torch.from_numpy(s))[pos_to_index(a[0], a[1])] # compute actual value
+        current = self.model(torch.from_numpy(s))[pos_to_index(a[0], a[1])] # Compute actual value
 
 
         loss = self.loss_func(current, target)
         loss.backward() # Compute gradients
         self.optimizer.step() # Backpropagate error
 
+        return loss.item()
+
     def export_model(self, fname="./q_model.pth"):
         torch.save(self.model.state_dict(), fname)
-        
+
     def import_model(self, fname="./q_model.pth"):
         self.model.load_state_dict(torch.load(fname))
 
 
-HEUR =  [[100, -25, 10, 5, 5, 10, -25, 100],
+HEUR =  [[100, -25, 10, 5, 5, 10, -25, -100],
         [-25, -25, 2, 2, 2, 2, -25, -25],
-        [10, 0, 0, 0, 0, 0, 0, 0],
-        [5, 0, 0, 0, 0, 0, 0, 0],
-        [5, 0, 0, 0, 0, 0, 0, 0],
-        [10, 0, 0, 0, 0, 0, 0, 0],
-        [-25, -25, 0, 0, 0, 0, 0, 0],
-        [100, -25, 0, 0, 0, 0, 0, 0]]
+        [10, 2, 5, 1, 1, 5, 2, 10],
+        [5, 2, 1, 2, 2, 1, 2, 5],
+        [5, 2, 1, 2, 2, 1, 2, 5],
+        [10, 2, 5, 1, 1, 5, 2, 10],
+        [-25, -25, 2, 2, 2, 2, -25, -25],
+        [100, -25, 10, 5, 5, 10, -25, 100]]
 class Heu_Agent:
     def __init__(self, heuristic=HEUR, color=WHITE):
         '''
@@ -133,7 +135,7 @@ class Heu_Agent:
             b_after_action = Board()    # new board to prevent referencing game board
             b_after_action.board = copy.deepcopy(b.board)
             b_after_action.play(move, self.color)       # play a move on a copy board (prevent reference that might mess with actual)
-            
+
             convert_board = copy.deepcopy(b_after_action.board)
             # WHITE = -1, BLACK = 1 in env.py
             # so if color is WHITE, we need to invert to feed to eval_function
@@ -146,7 +148,7 @@ class Heu_Agent:
                 best_move = move
 
         return best_move
-    
+
 class Rand_Agent:
     def __init__(self):
         None
