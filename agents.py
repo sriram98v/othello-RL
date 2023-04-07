@@ -64,17 +64,19 @@ class Q_Agent:
             s_ (np.array): next state
 
         Returns:
-            None: None
+            loss: float
         """
         self.optimizer.zero_grad()
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
         target = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_)))) # Compute expected value
-        current = self.model(torch.from_numpy(s))[pos_to_index(a[0], a[1])] # compute actual value
+        current = self.model(torch.from_numpy(s))[pos_to_index(a[0], a[1])] # Compute actual value
 
 
         loss = self.loss_func(current, target)
         loss.backward() # Compute gradients
         self.optimizer.step() # Backpropagate error
+
+        return loss.item()
 
     def export_model(self, fname="./q_model.pth"):
         torch.save(self.model.state_dict(), fname)
