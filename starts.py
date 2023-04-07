@@ -12,14 +12,16 @@ def list_of_starting_state():
 def start_recursive(board, color, depth):
     if depth == final_depth:
         check = False
-        # check if the board exist in the starting states
+        # check if the board exist in the starting states, check will be True if the board exist
         for i in starting_states:
             if i.board == board.board:
                 check = True
                 break
-        # if the state does not exist, append the state, or else, append it to the starting states list
+        
+        # if the state does not exist, append the state, or else, do not append the state
         if check == False:
             starting_states.append(board)
+    
     else:
         # get all the board's next state
         list_of_boards = board.next_states(color)
