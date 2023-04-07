@@ -137,6 +137,8 @@ class Board:
         else:
             return 0.0 # replace with reward func in future
 
+
+
     def flip(self, direction, position, color):
         """ Flips (capturates) the pieces of the given color in the given direction
         (1=North,2=Northeast...) from position. """
@@ -257,7 +259,7 @@ class Board:
         valid_moves = self.get_valid_moves(color)
         for move in valid_moves:
             newBoard = deepcopy(self)
-            newBoard.apply_move(move, color)
+            newBoard.play(move, color)
             yield newBoard
 
     def get_current_state(self):
