@@ -68,6 +68,21 @@ def rewards(array_1, array_2):
     '''
     return hamming_distance(array_1, array_2)
 
+def invert_board(board):
+    '''
+    input:
+        @param board -> othello board where white = -1, black = 1, empty = 0
+    output:
+        @return new_board -> where the numbers is inverted
+    '''
+    new_board = []
+    for row in board:
+        temp_list = []
+        for cell in row:
+            temp_list.append(cell*-1)   # multiply by -1 to invert the numbers
+        new_board.append(temp_list)
+    return new_board
+
 
 def main():
     pass
