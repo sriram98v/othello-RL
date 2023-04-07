@@ -16,34 +16,31 @@ other_color = WHITE
 pbar = tqdm.tqdm(total=NUM_EPISODES)
 
 for _ in range(NUM_EPISODES):
-    counter = 3
-    check = True
     board.reset()
-    while check: 
+
+    while True: 
+        # end game, both player does not have any legal moves
         if board.game_ended():
             break
-        else:
-            if counter % 2 == 0:
-                player = other
-                color = other_color
-            else:
-                player = agent
-                color = agent_color
-        current_state, legal_moves = board.get_current_state(), board.get_valid_moves(color)
-        if len(legal_moves)==0:
-            counter += 1
-            continue
-        if color == 'WHITE':        
-            move = other.rand_move(legal_moves)
-        else:
-            move = agent.act(current_state, legal_moves)
-
-        reward = board.play(move,color)
-        # print(color)
-        # board.print_board()
-        # print()
-        counter += 1
+        
+        # get agent current state and legal moves
+        agent_current_state, agent_legal_moves = board.get_current_state(), board.get_valid_moves(agent_color)
+        
+        # if agent has legal moves, select agent move and play
+        if len(agent_legal_moves) != 0:
+            agent_move = agent.act(agent_current_state, agent_legal_moves)
+            agent_reward = board.play(agent_move,agent_color)
+        
+        # get other current state and legal moves
+        other_current_state, other_legal_moves = board.get_current_state(), board.get_valid_moves(other_color)
+        
+        # if other has legal moves, select agent move and play
+        if len(other_legal_moves) != 0:
+            other_move = other.rand_move(other_legal_moves)
+            other_reward = board.play(other_move,other_color)
+    
     white_count, black_count, empty_count = board.count_stones()
+
     pbar.update(1)
 
     # if white_count > black_count:
