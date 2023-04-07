@@ -77,6 +77,9 @@ class Q_Agent:
         self.optimizer.step() # Backpropagate error
 
         return loss.item()
+    
+    def decay_eps(self, num_episodes):
+        self.eps -= self.eps/num_episodes
 
     def export_model(self, fname="./q_model.pth"):
         torch.save(self.model.state_dict(), fname)

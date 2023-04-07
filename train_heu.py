@@ -3,7 +3,7 @@ from agents import *
 import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
-NUM_EPISODES = 1000
+NUM_EPISODES = 1
 ALPHA = 0.01
 GAMMA = 1
 EPS = 0.1
@@ -12,12 +12,13 @@ writer=SummaryWriter("./log_dir")
 
 board = Board()
 agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
-other = Rand_Agent()
+other = Heu_Agent()
 agent_color = BLACK
 other_color = WHITE
 
 pbar = tqdm.tqdm(total=NUM_EPISODES)
 
+num_wins = 0
 for _ in range(NUM_EPISODES):
     board.reset()
     total_loss = 0
@@ -38,7 +39,7 @@ for _ in range(NUM_EPISODES):
         
         # if other has legal moves, select agent move and play
         if len(other_legal_moves) != 0:
-            other_move = other.rand_move(other_legal_moves)
+            other_move = other.heu_move(other_current_state)
             other_reward = board.play(other_move,other_color)
         
         loss = agent.learn(agent_current_state, agent_move, 0, board.get_current_state())
@@ -52,9 +53,10 @@ for _ in range(NUM_EPISODES):
         loss = agent.learn(agent_current_state, agent_move, 0, board.get_current_state())
     else:
         loss = agent.learn(agent_current_state, agent_move, -1, board.get_current_state())
-    
 
     board.print_board()
+    
+    
     agent.decay_eps(num_episodes=NUM_EPISODES)
     pbar.update(1)
     pbar.set_description(f"loss {total_loss/num_states}")
