@@ -18,6 +18,8 @@ other_color = WHITE
 
 pbar = tqdm.tqdm(total=NUM_EPISODES)
 
+num_wins = 0
+
 for _ in range(NUM_EPISODES):
     board.reset()
     total_loss = 0

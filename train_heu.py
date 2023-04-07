@@ -3,7 +3,7 @@ from agents import *
 import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
-NUM_EPISODES = 1
+NUM_EPISODES = 1000
 ALPHA = 0.01
 GAMMA = 1
 EPS = 0.1
@@ -21,6 +21,7 @@ pbar = tqdm.tqdm(total=NUM_EPISODES)
 num_wins = 0
 for _ in range(NUM_EPISODES):
     board.reset()
+    board.print_board()
     total_loss = 0
     num_states = 0
 
@@ -36,10 +37,12 @@ for _ in range(NUM_EPISODES):
         
         # get other current state and legal moves
         other_current_state, other_legal_moves = board.get_current_state(), board.get_valid_moves(other_color)
+        print(other_legal_moves)
         
         # if other has legal moves, select agent move and play
         if len(other_legal_moves) != 0:
             other_move = other.heu_move(other_current_state)
+            print(other_move, other_legal_moves)
             other_reward = board.play(other_move,other_color)
         
         loss = agent.learn(agent_current_state, agent_move, 0, board.get_current_state())
@@ -49,6 +52,7 @@ for _ in range(NUM_EPISODES):
     white_count, black_count, empty_count = board.count_stones()
     if black_count>white_count:
         loss = agent.learn(agent_current_state, agent_move, 1, board.get_current_state())
+        num_wins+=1
     elif black_count==white_count:
         loss = agent.learn(agent_current_state, agent_move, 0, board.get_current_state())
     else:
