@@ -6,7 +6,21 @@ import random
 from env import *
 import copy
 
-class Q_Agent:
+class Agent:
+    def get_move(self, state, legal_moves):
+        pass
+
+class Trainable_Agent(Agent):
+    def learn(self, s, a, r, s_):
+        pass
+
+    def export_model(self, fname):
+        pass
+
+    def import_model(self, fname):
+        pass
+
+class Q_Agent(Trainable_Agent):
     def __init__(self, alpha=0.01, gamma=1, eps=0.1):
         """_summary_
 
@@ -22,7 +36,7 @@ class Q_Agent:
         self.loss_func = torch.nn.MSELoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.alpha, momentum=0.9)
 
-    def act(self, state, legal_moves):
+    def get_move(self, state, legal_moves):
         """Chooses an action given a current state using an epsilon greedy policy
 
         Args:
@@ -96,7 +110,7 @@ HEUR =  [[100, -25, 10, 5, 5, 10, -25, -100],
         [10, 2, 5, 1, 1, 5, 2, 10],
         [-25, -25, 2, 2, 2, 2, -25, -25],
         [100, -25, 10, 5, 5, 10, -25, 100]]
-class Heu_Agent:
+class Heu_Agent(Agent):
     def __init__(self, heuristic=HEUR, color=WHITE):
         '''
         input:
@@ -119,8 +133,7 @@ class Heu_Agent:
         eval_score = np.sum(mul)
         return eval_score
 
-
-    def heu_move(self, state):
+    def get_move(self, state, legal_moves):
         '''
         input:
             @param state --> a 1D state of the current board
@@ -153,11 +166,11 @@ class Heu_Agent:
 
         return best_move
 
-class Rand_Agent:
+class Rand_Agent(Agent):
     def __init__(self):
         None
 
-    def rand_move(self, legal_moves):
+    def get_move(self, state, legal_moves):
         '''
         input:
             @param curr_state --> current state of the board
