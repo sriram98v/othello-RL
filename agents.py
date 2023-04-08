@@ -33,6 +33,7 @@ class Q_Agent(Trainable_Agent):
         self.alpha = alpha
         self.gamma = gamma
         self.eps = eps # change in future
+        self.eps_original = eps
         self.loss_func = torch.nn.MSELoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.alpha, momentum=0.9)
 
@@ -92,8 +93,8 @@ class Q_Agent(Trainable_Agent):
 
         return loss.item()
     
-    def decay_eps(self, num_episodes):
-        self.eps -= self.eps/num_episodes
+    def decay_eps_linear(self, num_episodes):
+        self.eps -= self.eps_original/num_episodes
 
     def export_model(self, fname="./q_model.pth"):
         torch.save(self.model.state_dict(), fname)
