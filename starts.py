@@ -1,39 +1,34 @@
 from env import *
 
 final_depth = 4
-starting_states = []
-
-def list_of_starting_state():
-
+starting_boards = []
+def generate_starting_boards():
+    global starting_boards
+    starting_boards=[]
     b = Board()
     start_recursive(b,BLACK,0)
-    return starting_states
+    return starting_boards
 
 def start_recursive(board, color, depth):
     if depth == final_depth:
         check = False
         # check if the board exist in the starting states, check will be True if the board exist
-        for i in starting_states:
+        for i in starting_boards:
             if i.board == board.board:
                 check = True
                 break
         
         # if the state does not exist, append the state, or else, do not append the state
         if check == False:
-            starting_states.append(board)
+            starting_boards.append(board)
     
     else:
         # get all the board's next state
         list_of_boards = board.next_states(color)
         
         # switch color
-        if color == BLACK:
-            new_color = WHITE
-        else:
-            new_color = BLACK
+        new_color = WHITE if color==BLACK else BLACK
         
         # recursive call for all the legal moves
         for b in list_of_boards:
-            start_recursive(b,new_color,depth + 1)
-
-list_of_starting_state()
+            start_recursive(b, new_color, depth + 1)

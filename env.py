@@ -11,6 +11,10 @@ EMPTY = 0
 BLACK = 1
 WHITE = -1
 
+DRAW = 0
+BLACK_WIN = 1
+WHITE_WIN = -1
+
 class Board:
 
     """ Rules of the game """
