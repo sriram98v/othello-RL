@@ -138,6 +138,7 @@ class Heu_Agent(Agent):
         '''
         input:
             @param state --> a 1D state of the current board
+            @param legalmoves --> list of moves
         output:
             @return best_move --> select the best move out of all legal move for the move that return highest eval_function
         '''
@@ -148,7 +149,7 @@ class Heu_Agent(Agent):
         eval_max = 0    # eval_max to store the highest eval
         best_move = None
 
-        for move in valid_moves:
+        for move in legal_moves:
             b_after_action = Board()    # new board to prevent referencing game board
             b_after_action.board = copy.deepcopy(b.board)
             b_after_action.play(move, self.color)       # play a move on a copy board (prevent reference that might mess with actual)
@@ -203,4 +204,4 @@ class Human(Agent):
         if int(a) not in range(len(legal_moves)):
             print("invalid move selected.")     #check selected index is within list length    
 
-        return legal_moves[np.random.randint(len(legal_moves))]
+        return legal_moves[int(a)]
