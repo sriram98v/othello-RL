@@ -3,7 +3,7 @@ from agents import *
 import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
-NUM_EPISODES = 1000
+NUM_EPISODES = 2000000
 ALPHA = 0.01
 GAMMA = 1
 EPS = 0.1
@@ -19,6 +19,8 @@ other_color = WHITE
 pbar = tqdm.tqdm(total=NUM_EPISODES)
 
 num_wins = 0
+num_losses = 0
+num_draws = 0
 
 for _ in range(NUM_EPISODES):
     board.reset()
@@ -50,24 +52,22 @@ for _ in range(NUM_EPISODES):
     white_count, black_count, empty_count = board.count_stones()
     if black_count>white_count:
         loss = agent.learn(agent_current_state, agent_move, 1, board.get_current_state())
+        num_wins +=1
     elif black_count==white_count:
         loss = agent.learn(agent_current_state, agent_move, 0, board.get_current_state())
+        num_draws += 1
     else:
+        num_losses+=1
         loss = agent.learn(agent_current_state, agent_move, -1, board.get_current_state())
     
 
-    board.print_board()
+    # board.print_board()
     agent.decay_eps(num_episodes=NUM_EPISODES)
     pbar.update(1)
     pbar.set_description(f"loss {total_loss/num_states}")
-    pbar.set_description(f"num wins {num_wins/(_+1)}")
-    writer.add_scalar('training loss',
+    pbar.set_description(f"wins: {num_wins} draws: {num_draws} losses:{num_losses}")
+    writer.add_scalar('training loss vs rand',
                             total_loss/num_states,
                             _)
-
-    # if white_count > black_count:
-    #     # pbar.write('agent win')
-    # elif black_count > white_count:
-    #     # pbar.write('other win')
-    # else:
-    #     # pbar.write('Draw game')
+    agent.export_model(f"./models/qagents/q_agent_vs_rand.pth")
+agent.export_model(f"./models/qagents/q_agent_vs_rand_final.pth")
