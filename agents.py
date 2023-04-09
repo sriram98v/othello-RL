@@ -145,7 +145,6 @@ class Heu_Agent(Agent):
         b = Board()
         b.board = list(state_2d)    # list(<array>) should change it to list of list. double check.
 
-        valid_moves = b.get_valid_moves(self.color)
         eval_max = 0    # eval_max to store the highest eval
         best_move = None
 
@@ -165,6 +164,7 @@ class Heu_Agent(Agent):
                 eval_max = new_eval
                 best_move = move
 
+        print(best_move)
         return best_move
 
 class Rand_Agent(Agent):
@@ -179,4 +179,28 @@ class Rand_Agent(Agent):
         output:
             @return a random moves from legalmoves
         '''
+        return legal_moves[np.random.randint(len(legal_moves))]
+
+class Human(Agent):
+    def get_move(self, state, legal_moves):
+        '''
+        input:
+            @param state --> current state of the board
+            @param legalmoves --> list of moves
+        output:
+            @return a random moves from legalmoves (chosen from human)
+        '''
+
+        print("select one(index) of all legal moves")   # show all legal moves for player
+        for i in range(len(legal_moves)):
+            print("[{}]. {}".format(str(i),str(legal_moves[i])))
+
+
+        print(state.reshape((8,8)))
+
+        a = input()     # human player chooses an action (chooses the index)
+
+        if int(a) not in range(len(legal_moves)):
+            print("invalid move selected.")     #check selected index is within list length    
+
         return legal_moves[np.random.randint(len(legal_moves))]
