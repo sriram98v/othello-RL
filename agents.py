@@ -150,6 +150,7 @@ class Heu_Agent:
                 eval_max = new_eval
                 best_move = move
 
+        print(best_move)
         return best_move
 
 class Rand_Agent:
