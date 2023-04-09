@@ -86,7 +86,6 @@ class Q_Agent(Trainable_Agent):
         target = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_)))) # Compute expected value
         current = self.model(torch.from_numpy(s))[pos_to_index(a[0], a[1])] # Compute actual value
 
-
         loss = self.loss_func(current, target)
         loss.backward() # Compute gradients
         self.optimizer.step() # Backpropagate error
@@ -146,7 +145,7 @@ class Heu_Agent(Agent):
         b = Board()
         b.board = list(state_2d)    # list(<array>) should change it to list of list. double check.
 
-        eval_max = 0    # eval_max to store the highest eval
+        eval_max = -np.inf    # eval_max to store the highest eval
         best_move = None
 
         for move in legal_moves:
