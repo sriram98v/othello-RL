@@ -147,7 +147,7 @@ class Heu_Agent(Agent):
         eval_max = -np.inf    # eval_max to store the highest eval
         best_move = None
 
-        for move in valid_moves:
+        for move in legal_moves:
             b_after_action = Board()    # new board to prevent referencing game board
             b_after_action.board = copy.deepcopy(b.board)
             b_after_action.play(move, self.color)       # play a move on a copy board (prevent reference that might mess with actual)
