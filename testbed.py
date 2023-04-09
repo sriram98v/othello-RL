@@ -61,7 +61,7 @@ def play_testbed(agent, other, multiplier=1):
 
 
 
-result = play_testbed(Rand_Agent(), Rand_Agent())
+#result = play_testbed(Rand_Agent(), Rand_Agent())
+result = play_testbed(Human(), Human())
+
 print(result)
-
-
