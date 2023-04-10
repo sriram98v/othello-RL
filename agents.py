@@ -83,13 +83,11 @@ class Q_Agent(Trainable_Agent):
         """
         self.optimizer.zero_grad()
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
-        
         current = self.model(torch.from_numpy(s)) # Compute actual value
-        target = self.model(torch.from_numpy(s)).detach()
-        target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_))))
-        # print(target)
-        # print(current)
-
+        #print(type(current))
+        target = torch.clone(current)
+        target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_)))) # Compute expected value
+        
 
         loss = self.loss_func(current, target)
         loss.backward() # Compute gradients
