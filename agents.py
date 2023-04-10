@@ -125,7 +125,10 @@ class Q_Agent(Trainable_Agent):
         torch.save(self.model.state_dict(), fname)
 
     def import_model(self, fname="./q_model.pth"):
+        # print(self.model.hidden2.weight)
         self.model.load_state_dict(torch.load(fname))
+        # print(self.model.hidden2.weight)
+        # print(f"loaded from {fname}")
 
 
 HEUR =  [[100, -25, 10, 5, 5, 10, -25, -100],
