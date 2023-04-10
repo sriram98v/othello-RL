@@ -142,6 +142,7 @@ class Heu_Agent(Agent):
         '''
         input:
             @param state --> a 1D state of the current board
+            @param legalmoves --> list of moves
         output:
             @return best_move --> select the best move out of all legal move for the move that return highest eval_function
         '''
@@ -207,4 +208,4 @@ class Human(Agent):
         if int(a) not in range(len(legal_moves)):
             print("invalid move selected.")     #check selected index is within list length    
 
-        return legal_moves[np.random.randint(len(legal_moves))]
+        return legal_moves[int(a)]

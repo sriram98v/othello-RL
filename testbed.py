@@ -57,10 +57,6 @@ def play_testbed(agent, other, multiplier=1):
     return agent_wins, agent_loss, agent_draws, games_played
 
 
-
-
-
-
 #result = play_testbed(Rand_Agent(), Rand_Agent())
 result = play_testbed(Human(), Human())
 
