@@ -1,6 +1,7 @@
 from env import *
 from agents import *
 from starts import * 
+import os
 
 ALPHA = 0.01
 GAMMA = 1
@@ -63,17 +64,25 @@ def play_testbed(agent, other, multiplier=1):
 
     return agent_wins, agent_loss, agent_draws, games_played
 
+def run_test_over_models(dir):
+    q_Agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=0)
+    results = []
+    for model in os.listdir(dir):
+        q_Agent.import_model(model)
+        results.append(play_testbed(q_Agent, Rand_Agent(), 1))
+    
+    return [(_, result) for _,result in zip(range(0, 2000000, 1000), results)]
 
 
-q_Agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=0.0)
-q_Agent.import_model("models/qagents/q_agent_vs_rand.pth")
-result = play_testbed(q_Agent, Rand_Agent(), 100)
+# q_Agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=0.0)
+# q_Agent.import_model("models/qagents/q_agent_vs_rand.pth")
+result = play_testbed(Heu_Agent(), Rand_Agent(), 100)
 
 print(result)
 
-q_Agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=0.0)
-q_Agent.import_model("q_agent_vs_rand_prev.pth")
-result = play_testbed(q_Agent, Rand_Agent(), 100)
+# q_Agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=0.0)
+# q_Agent.import_model("q_agent_vs_rand_prev.pth")
+# result = play_testbed(q_Agent, Rand_Agent(), 100)
 
-print(result)
+# print(result)
 
