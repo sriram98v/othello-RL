@@ -62,7 +62,8 @@ for _ in range(NUM_EPISODES):
     
 
     #board.print_board()
-    agent.decay_eps(num_episodes=NUM_EPISODES)
+    if _%1000==0:
+        agent.decay_eps_linear(num_episodes=NUM_EPISODES)
     pbar.update(1)
     pbar.set_description(f"loss {total_loss/num_states}")
     pbar.set_description(f"wins: {num_wins} draws: {num_draws} losses:{num_losses}")
