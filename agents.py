@@ -21,7 +21,7 @@ class Trainable_Agent(Agent):
         pass
 
 class Q_Agent(Trainable_Agent):
-    def __init__(self, alpha=0.01, gamma=1, eps=0.1):
+    def __init__(self, alpha=0.01, gamma=1, eps=0.1, device=torch.device('cpu')):
         """_summary_
 
         Args:
@@ -36,6 +36,10 @@ class Q_Agent(Trainable_Agent):
         self.eps_original = eps
         self.loss_func = torch.nn.MSELoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.alpha, momentum=0.9)
+        self.device = device
+
+
+        self.model.to(self.device)
 
     def get_move(self, state, legal_moves):
         """Chooses an action given a current state using an epsilon greedy policy
@@ -47,7 +51,10 @@ class Q_Agent(Trainable_Agent):
         Returns:
             tuple: xy position on the board
         """
-        q_vals = self.model(torch.from_numpy(state)).detach().numpy()
+        if self.device!=torch.device('cpu'):
+            q_vals = self.model(torch.from_numpy(state).to(device=self.device)).detach().cpu().numpy()
+        else:
+            q_vals = self.model(torch.from_numpy(state)).detach().numpy()
         values = []
         # print(len(legal_moves))
         for move in legal_moves:
@@ -67,7 +74,10 @@ class Q_Agent(Trainable_Agent):
         Returns:
             np.array: q_values
         """
-        return self.model(torch.from_numpy(state)).detach().numpy()
+        if self.device!=torch.device('cpu'):
+            return self.model(torch.from_numpy(state).to(self.device)).detach().cpu().numpy()
+        else:
+            return self.model(torch.from_numpy(state)).detach().numpy()
 
     def learn(self, s, a, r, s_):
         """updates model for a single step
@@ -83,15 +93,28 @@ class Q_Agent(Trainable_Agent):
         """
         self.optimizer.zero_grad()
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
-        current = self.model(torch.from_numpy(s)) # Compute actual value
-        #print(type(current))
-        target = torch.clone(current)
-        target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_)))) # Compute expected value
-        
+        if self.device!=torch.device('cpu'):
+            current = self.model(torch.from_numpy(s).to(self.device)) # Compute actual value
+            target = torch.clone(current)
+            target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_).to(self.device))))
+            # print(target)
+            # print(current)
 
-        loss = self.loss_func(current, target)
-        loss.backward() # Compute gradients
-        self.optimizer.step() # Backpropagate error
+
+            loss = self.loss_func(current, target)
+            loss.backward() # Compute gradients
+            self.optimizer.step() # Backpropagate error
+        else:
+            current = self.model(torch.from_numpy(s)) # Compute actual value
+            target = torch.clone(current)
+            target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_))))
+            # print(target)
+            # print(current)
+
+
+            loss = self.loss_func(current, target)
+            loss.backward() # Compute gradients
+            self.optimizer.step() # Backpropagate error
 
         return loss.item()
     
@@ -102,12 +125,15 @@ class Q_Agent(Trainable_Agent):
         torch.save(self.model.state_dict(), fname)
 
     def import_model(self, fname="./q_model.pth"):
+        # print(self.model.hidden2.weight)
         self.model.load_state_dict(torch.load(fname))
+        # print(self.model.hidden2.weight)
+        # print(f"loaded from {fname}")
 
 
-HEUR =  [[100, -25, 10, 5, 5, 10, -25, -100],
-        [-25, -25, 2, 2, 2, 2, -25, -25],
-        [10, 2, 5, 1, 1, 5, 2, 10],
+HEUR =  [[100,  -25, 10, 5, 5, 10, -25, 100],
+        [-25,   -25, 2, 2, 2, 2, -25, -25],
+        [10,    2, 5, 1, 1, 5, 2, 10],
         [5, 2, 1, 2, 2, 1, 2, 5],
         [5, 2, 1, 2, 2, 1, 2, 5],
         [10, 2, 5, 1, 1, 5, 2, 10],
@@ -121,7 +147,7 @@ class Heu_Agent(Agent):
             @param color --> color pieces of the heuristic agent
         '''
         self.color = color
-        self.heur = heuristic
+        self.heur = copy.deepcopy(heuristic)
 
     def eval_function(self, curr_board):
         '''
@@ -132,7 +158,7 @@ class Heu_Agent(Agent):
             @return result --> an integer after the calculation
         '''
         eval_score = 0
-        mul = np.multiply(curr_board, HEUR)
+        mul = np.multiply(curr_board, self.heur)
         eval_score = np.sum(mul)
         return eval_score
 
@@ -151,23 +177,57 @@ class Heu_Agent(Agent):
         eval_max = -np.inf    # eval_max to store the highest eval
         best_move = None
 
-        for move in legal_moves:
-            b_after_action = Board()    # new board to prevent referencing game board
-            b_after_action.board = copy.deepcopy(b.board)
-            b_after_action.play(move, self.color)       # play a move on a copy board (prevent reference that might mess with actual)
+        # below does not work because we still do not know which move resulted which action, hence
+        # unable to return "best" move
+        """all_nextstates = b.next_states(self.color)
 
-            convert_board = copy.deepcopy(b_after_action.board)
-            # WHITE = -1, BLACK = 1 in env.py
-            # so if color is WHITE, we need to invert to feed to eval_function
+        for next_board in all_nextstates:
+            convert_board=copy.deepcopy(next_board.board)
             if self.color == WHITE:
-                convert_board=invert_board(copy.deepcopy(b_after_action.board))
-
+                convert_board=invert_board(copy.deepcopy(convert_board))
             new_eval = self.eval_function(convert_board)
             if  new_eval > eval_max:
                 eval_max = new_eval
                 best_move = move
+        return best_move"""
 
-        print(best_move)
+        #print("------------- TEST STATE -------------")
+        #print("possible legal move:")
+        #print(legal_moves)
+        for move in legal_moves:
+            #print("trying out move for {}".format(str(self.color)))
+            #print(move)
+            b_after_action = Board()    # new board to prevent referencing game board
+            b_after_action.board = copy.deepcopy(b.board)
+            #print("cloned board")
+            #b_after_action.print_board()
+            temp=b_after_action.get_valid_moves(self.color)
+            b_after_action.play(move, self.color)       # play a move on a copy board (prevent reference that might mess with actual)
+            #print("cloned board after move")
+            #b_after_action.print_board()
+
+            convert_board = copy.deepcopy(b_after_action.board)
+
+            #def print_board(board):
+            #    for l in board:
+            #        print(l)
+
+            # WHITE = -1, BLACK = 1 in env.py
+            # so if color is WHITE, we need to invert to feed to eval_function
+            #print("before convert")
+            #print_board(convert_board)
+            if self.color == WHITE:
+                convert_board=invert_board(copy.deepcopy(b_after_action.board))
+            #print("after convert")
+            #print_board(convert_board)
+
+            # check the new eval score for new board
+            new_eval = self.eval_function(convert_board)
+            #print("eval function for such board:")
+            #print(new_eval)
+            if  new_eval > eval_max:
+                eval_max = new_eval
+                best_move = move
         return best_move
 
 class Rand_Agent(Agent):

@@ -125,12 +125,27 @@ class Board:
     def play(self, move, color):
         """ Determine if the move is correct and apply the changes in the game.
         """
+
         current_board = deepcopy(self.board)
+
+        # DEBUG 
+        #print("INSIDE board.play")
+        #print("curr_board")
+        #for b in current_board:
+        #    print(b)
+        #print(self.valid_moves)
+
         if move in self.valid_moves:
             self.board[move[0]][move[1]] = color
             for i in range(1, 9):
                 self.flip(i, move, color)
         new_board = deepcopy(self.board)
+        
+        # DEBUG 
+        #print("new board")
+        #for b in new_board:
+        #    print(b)
+
         if self.game_ended():
             white, black, empty = self.count_stones()
             if white==black:
@@ -270,102 +285,3 @@ class Board:
     def get_current_state(self):
         return np.array(deepcopy(self.board), dtype=np.float32).flatten()
     
-    # test update for GUI
-    	#Updating the board to the screen
-    # GUI related
-    def update(self, screen):
-        screen.delete("highlight")
-        screen.delete("tile")
-        for x in range(8):
-            for y in range(8):
-				#Could replace the circles with images later, if I want
-                if self.oldarray[x][y]=="w":
-                    screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile {0}-{1}".format(x,y),fill="#aaa",outline="#aaa")
-                    screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile {0}-{1}".format(x,y),fill="#fff",outline="#fff")
-
-                elif self.oldarray[x][y]=="b":
-                    screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile {0}-{1}".format(x,y),fill="#000",outline="#000")
-                    screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile {0}-{1}".format(x,y),fill="#111",outline="#111")
-		#Animation of new tiles
-        screen.update()
-        for x in range(8):
-            for y in range(8):
-				#Could replace the circles with images later, if I want
-                if self.array[x][y]!=self.oldarray[x][y] and self.array[x][y]=="w":
-                    screen.delete("{0}-{1}".format(x,y))
-					#42 is width of tile so 21 is half of that
-					#Shrinking
-                    for i in range(21):
-                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#000",outline="#000")
-                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#111",outline="#111")
-                        if i%3==0:
-                            time.sleep(0.01)
-                        screen.update()
-                        screen.delete("animated")
-					#Growing
-                    for i in reversed(range(21)):
-                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#aaa",outline="#aaa")
-                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#fff",outline="#fff")
-                        if i%3==0:
-                            time.sleep(0.01)
-                        screen.update()
-                        screen.delete("animated")
-                    screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile",fill="#aaa",outline="#aaa")
-                    screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile",fill="#fff",outline="#fff")
-                    screen.update()
-                
-                elif self.array[x][y]!=self.oldarray[x][y] and self.array[x][y]=="b":
-                    screen.delete("{0}-{1}".format(x,y))
-					#42 is width of tile so 21 is half of that
-					#Shrinking
-                    for i in range(21):
-                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#aaa",outline="#aaa")
-                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#fff",outline="#fff")
-                        if i%3==0:
-                            time.sleep(0.01)
-                        screen.update()
-                        screen.delete("animated")
-					#Growing
-                    for i in reversed(range(21)):
-                        screen.create_oval(54+i+50*x,54+i+50*y,96-i+50*x,96-i+50*y,tags="tile animated",fill="#000",outline="#000")
-                        screen.create_oval(54+i+50*x,52+i+50*y,96-i+50*x,94-i+50*y,tags="tile animated",fill="#111",outline="#111")
-                        if i%3==0:
-                            time.sleep(0.01)
-                        screen.update()
-                        screen.delete("animated")
-
-                    screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile",fill="#000",outline="#000")
-                    screen.create_oval(54+50*x,52+50*y,96+50*x,94+50*y,tags="tile",fill="#111",outline="#111")
-                    screen.update()
-
-		#Drawing of highlight circles
-        for x in range(8):
-            for y in range(8):
-                if self.player == 0:
-					# TODO: valid checks for valid move
-                    if valid(self.array,self.player,x,y):
-                        screen.create_oval(68+50*x,68+50*y,32+50*(x+1),32+50*(y+1),tags="highlight",fill="#008000",outline="#008000")
-
-        if not self.won:
-			#Draw the scoreboard and update the screen
-            self.drawScoreBoard()
-            screen.update()
-			#If the computer is AI, make a move
-            if self.player==1:
-                startTime = time()
-                self.oldarray = self.array
-                alphaBetaResult = self.alphaBeta(self.array,depth,-float("inf"),float("inf"),1)
-                self.array = alphaBetaResult[1]
-                
-                if len(alphaBetaResult)==3:
-                    position = alphaBetaResult[2]
-                    self.oldarray[position[0]][position[1]]="b"
-                self.player = 1-self.player
-                deltaTime = round((time()-startTime)*100)/100
-                if deltaTime<2:
-                    sleep(2-deltaTime)
-                    nodes = 0
-				#Player must pass?
-                # self.passTest()
-        else:
-            screen.create_text(250,550,anchor="c",font=("Consolas",15), text="The game is done!")
