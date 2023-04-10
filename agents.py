@@ -21,7 +21,7 @@ class Trainable_Agent(Agent):
         pass
 
 class Q_Agent(Trainable_Agent):
-    def __init__(self, alpha=0.01, gamma=1, eps=0.1):
+    def __init__(self, alpha=0.01, gamma=1, eps=0.1, device=torch.device('cpu')):
         """_summary_
 
         Args:
@@ -36,6 +36,10 @@ class Q_Agent(Trainable_Agent):
         self.eps_original = eps
         self.loss_func = torch.nn.MSELoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.alpha, momentum=0.9)
+        self.device = device
+
+
+        self.model.to(self.device)
 
     def get_move(self, state, legal_moves):
         """Chooses an action given a current state using an epsilon greedy policy
@@ -47,7 +51,10 @@ class Q_Agent(Trainable_Agent):
         Returns:
             tuple: xy position on the board
         """
-        q_vals = self.model(torch.from_numpy(state)).detach().numpy()
+        if self.device==torch.device('cuda'):
+            q_vals = self.model(torch.from_numpy(state).to(device=self.device)).detach().cpu().numpy()
+        else:
+            q_vals = self.model(torch.from_numpy(state)).detach().numpy()
         values = []
         # print(len(legal_moves))
         for move in legal_moves:
@@ -83,15 +90,28 @@ class Q_Agent(Trainable_Agent):
         """
         self.optimizer.zero_grad()
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
-        current = self.model(torch.from_numpy(s)) # Compute actual value
-        #print(type(current))
-        target = torch.clone(current)
-        target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_)))) # Compute expected value
-        
+        if self.device==torch.device('cuda'):
+            current = self.model(torch.from_numpy(s).to(self.device)) # Compute actual value
+            target = self.model(torch.from_numpy(s).to(self.device)).detach()
+            target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_).to(self.device))))
+            # print(target)
+            # print(current)
 
-        loss = self.loss_func(current, target)
-        loss.backward() # Compute gradients
-        self.optimizer.step() # Backpropagate error
+
+            loss = self.loss_func(current, target)
+            loss.backward() # Compute gradients
+            self.optimizer.step() # Backpropagate error
+        else:
+            current = self.model(torch.from_numpy(s)) # Compute actual value
+            target = self.model(torch.from_numpy(s)).detach()
+            target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_))))
+            # print(target)
+            # print(current)
+
+
+            loss = self.loss_func(current, target)
+            loss.backward() # Compute gradients
+            self.optimizer.step() # Backpropagate error
 
         return loss.item()
     
