@@ -92,7 +92,7 @@ class Q_Agent(Trainable_Agent):
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
         if self.device==torch.device('cuda'):
             current = self.model(torch.from_numpy(s).to(self.device)) # Compute actual value
-            target = self.model(torch.from_numpy(s).to(self.device)).detach()
+            target = torch.clone(current)
             target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_).to(self.device))))
             # print(target)
             # print(current)
@@ -103,7 +103,7 @@ class Q_Agent(Trainable_Agent):
             self.optimizer.step() # Backpropagate error
         else:
             current = self.model(torch.from_numpy(s)) # Compute actual value
-            target = self.model(torch.from_numpy(s)).detach()
+            target = torch.clone(current)
             target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_))))
             # print(target)
             # print(current)
