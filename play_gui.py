@@ -4,14 +4,22 @@ import numpy as np
 from env import *
 from agents import *
 
+
+global screen
 root = Tk()
 screen = Canvas(root, width=500, height=600, background="#555",highlightthickness=0)
 screen.pack()
+
 
 # testing here
 board = Board()
 global player
 global legal_moves
+
+def reset_screen(root):
+    screen.destroy()
+    screen = Canvas(root, width=500, height=600, background="#555",highlightthickness=0)
+    screen.pack()
 
 def drawbackground():
     for i in range(7):
@@ -30,7 +38,7 @@ def update(board):
                 screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile {0}-{1}".format(x,y),fill="#000",outline="#000")
     
     screen.update()
-    time.sleep(2)
+    #time.sleep(0.1)
 
 def play_game(black_agent, white_agent, board=None):
     if board==None:
@@ -53,12 +61,12 @@ def play_game(black_agent, white_agent, board=None):
     white_count, black_count, _ = board.count_stones()
     if black_count>white_count:
             print("BLACK WIN")
-            return BLACK_WIN
+            return "B"
     if black_count<white_count:
             print("WHITE WIN")
-            return WHITE_WIN
+            return "W"
     print("DRAW")
-    return DRAW
+    return "D"
 
 def clickHandle(event):
     xMouse = event.x
@@ -73,12 +81,22 @@ def clickHandle(event):
 
 if __name__ == "__main__":
     drawbackground()
-
     screen.focus_set()
     root.wm_title("Othello")
-
-    result = play_game(Rand_Agent(), Rand_Agent())
     
+    bw = 0
+    ww = 0
+    for _ in range(10):
+        # BLACK, WHITE
+        result = play_game(Rand_Agent(), Heu_Agent())
+        if result == "W":
+            ww+=1      
+        if result == "B":
+            bw+=1
+        #reset_screen(root)
+        print("black wins: {}".format(str(bw)))
+        print("white wins: {}".format(str(ww)))
+
     root.mainloop()
     
     

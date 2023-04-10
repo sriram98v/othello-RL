@@ -128,9 +128,9 @@ class Q_Agent(Trainable_Agent):
         self.model.load_state_dict(torch.load(fname))
 
 
-HEUR =  [[100, -25, 10, 5, 5, 10, -25, -100],
-        [-25, -25, 2, 2, 2, 2, -25, -25],
-        [10, 2, 5, 1, 1, 5, 2, 10],
+HEUR =  [[100,  -25, 10, 5, 5, 10, -25, 100],
+        [-25,   -25, 2, 2, 2, 2, -25, -25],
+        [10,    2, 5, 1, 1, 5, 2, 10],
         [5, 2, 1, 2, 2, 1, 2, 5],
         [5, 2, 1, 2, 2, 1, 2, 5],
         [10, 2, 5, 1, 1, 5, 2, 10],
@@ -144,7 +144,7 @@ class Heu_Agent(Agent):
             @param color --> color pieces of the heuristic agent
         '''
         self.color = color
-        self.heur = heuristic
+        self.heur = copy.deepcopy(heuristic)
 
     def eval_function(self, curr_board):
         '''
@@ -155,7 +155,7 @@ class Heu_Agent(Agent):
             @return result --> an integer after the calculation
         '''
         eval_score = 0
-        mul = np.multiply(curr_board, HEUR)
+        mul = np.multiply(curr_board, self.heur)
         eval_score = np.sum(mul)
         return eval_score
 
@@ -174,23 +174,57 @@ class Heu_Agent(Agent):
         eval_max = -np.inf    # eval_max to store the highest eval
         best_move = None
 
-        for move in legal_moves:
-            b_after_action = Board()    # new board to prevent referencing game board
-            b_after_action.board = copy.deepcopy(b.board)
-            b_after_action.play(move, self.color)       # play a move on a copy board (prevent reference that might mess with actual)
+        # below does not work because we still do not know which move resulted which action, hence
+        # unable to return "best" move
+        """all_nextstates = b.next_states(self.color)
 
-            convert_board = copy.deepcopy(b_after_action.board)
-            # WHITE = -1, BLACK = 1 in env.py
-            # so if color is WHITE, we need to invert to feed to eval_function
+        for next_board in all_nextstates:
+            convert_board=copy.deepcopy(next_board.board)
             if self.color == WHITE:
-                convert_board=invert_board(copy.deepcopy(b_after_action.board))
-
+                convert_board=invert_board(copy.deepcopy(convert_board))
             new_eval = self.eval_function(convert_board)
             if  new_eval > eval_max:
                 eval_max = new_eval
                 best_move = move
+        return best_move"""
 
-        # print(best_move)
+        #print("------------- TEST STATE -------------")
+        #print("possible legal move:")
+        #print(legal_moves)
+        for move in legal_moves:
+            #print("trying out move for {}".format(str(self.color)))
+            #print(move)
+            b_after_action = Board()    # new board to prevent referencing game board
+            b_after_action.board = copy.deepcopy(b.board)
+            #print("cloned board")
+            #b_after_action.print_board()
+            temp=b_after_action.get_valid_moves(self.color)
+            b_after_action.play(move, self.color)       # play a move on a copy board (prevent reference that might mess with actual)
+            #print("cloned board after move")
+            #b_after_action.print_board()
+
+            convert_board = copy.deepcopy(b_after_action.board)
+
+            #def print_board(board):
+            #    for l in board:
+            #        print(l)
+
+            # WHITE = -1, BLACK = 1 in env.py
+            # so if color is WHITE, we need to invert to feed to eval_function
+            #print("before convert")
+            #print_board(convert_board)
+            if self.color == WHITE:
+                convert_board=invert_board(copy.deepcopy(b_after_action.board))
+            #print("after convert")
+            #print_board(convert_board)
+
+            # check the new eval score for new board
+            new_eval = self.eval_function(convert_board)
+            #print("eval function for such board:")
+            #print(new_eval)
+            if  new_eval > eval_max:
+                eval_max = new_eval
+                best_move = move
         return best_move
 
 class Rand_Agent(Agent):
