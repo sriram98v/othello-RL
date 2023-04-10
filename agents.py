@@ -51,7 +51,7 @@ class Q_Agent(Trainable_Agent):
         Returns:
             tuple: xy position on the board
         """
-        if self.device==torch.device('cuda'):
+        if self.device!=torch.device('cpu'):
             q_vals = self.model(torch.from_numpy(state).to(device=self.device)).detach().cpu().numpy()
         else:
             q_vals = self.model(torch.from_numpy(state)).detach().numpy()
@@ -74,7 +74,10 @@ class Q_Agent(Trainable_Agent):
         Returns:
             np.array: q_values
         """
-        return self.model(torch.from_numpy(state)).detach().numpy()
+        if self.device!=torch.device('cpu'):
+            return self.model(torch.from_numpy(state).to(self.device)).detach().cpu().numpy()
+        else:
+            return self.model(torch.from_numpy(state)).detach().numpy()
 
     def learn(self, s, a, r, s_):
         """updates model for a single step
@@ -90,7 +93,7 @@ class Q_Agent(Trainable_Agent):
         """
         self.optimizer.zero_grad()
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
-        if self.device==torch.device('cuda'):
+        if self.device!=torch.device('cpu'):
             current = self.model(torch.from_numpy(s).to(self.device)) # Compute actual value
             target = torch.clone(current)
             target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_).to(self.device))))
