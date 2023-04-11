@@ -69,5 +69,15 @@ for _ in range(NUM_EPISODES):
     writer.add_scalar('training loss vs rand',
                             total_loss/num_states,
                             _)
-    agent.export_model(f"./models/qagents/q_agent_vs_rand.pth")
+    writer.add_scalar('Cummulative wins vs rand',
+                            num_wins,
+                            _)
+    writer.add_scalar('Cummulative draws vs rand',
+                            num_draws,
+                            _)
+    writer.add_scalar('Cummulative losses vs rand',
+                            num_losses,
+                            _)
+    if _%1000==0:
+        agent.export_model(f"./models/qagents/q_agent_vs_rand_{_}.pth")
 agent.export_model(f"./models/qagents/q_agent_vs_rand_final.pth")

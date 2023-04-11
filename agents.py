@@ -125,7 +125,10 @@ class Q_Agent(Trainable_Agent):
         torch.save(self.model.state_dict(), fname)
 
     def import_model(self, fname="./q_model.pth"):
+        # print(self.model.hidden2.weight)
         self.model.load_state_dict(torch.load(fname))
+        # print(self.model.hidden2.weight)
+        # print(f"loaded from {fname}")
 
 BENCH = [[80,  -26, 24, -1, -5, 28, -18, 76],
         [-23,   -39, -18, -9, -6, -8, -39, -1],
