@@ -3,7 +3,7 @@ from agents import *
 import tqdm
 from torch.utils.tensorboard import SummaryWriter
 
-NUM_EPISODES = 2000000
+NUM_EPISODES = 500000
 ALPHA = 0.01
 GAMMA = 1
 EPS = 0.1

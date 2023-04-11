@@ -20,6 +20,10 @@ class Trainable_Agent(Agent):
     def import_model(self, fname):
         pass
 
+def init_uniform(m):
+    if type(m) == torch.nn.Linear:
+        torch.nn.init.uniform_(m.weight,-0.5, 0.5)
+
 class Q_Agent(Trainable_Agent):
     def __init__(self, alpha=0.01, gamma=1, eps=0.1, device=torch.device('cpu')):
         """_summary_
@@ -35,8 +39,9 @@ class Q_Agent(Trainable_Agent):
         self.eps = eps # change in future
         self.eps_original = eps
         self.loss_func = torch.nn.MSELoss()
-        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.alpha, momentum=0.9)
+        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.alpha)#, momentum=0.9)
         self.device = device
+        self.model.apply(init_uniform)
 
 
         self.model.to(self.device)
@@ -129,7 +134,6 @@ class Q_Agent(Trainable_Agent):
         self.model.load_state_dict(torch.load(fname))
         # print(self.model.hidden2.weight)
         # print(f"loaded from {fname}")
-
 
 HEUR =  [[100,  -25, 10, 5, 5, 10, -25, 100],
         [-25,   -25, 2, 2, 2, 2, -25, -25],

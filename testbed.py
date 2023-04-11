@@ -65,29 +65,37 @@ def play_testbed(agent, other, multiplier=1):
 
     return agent_wins, agent_loss, agent_draws, games_played
 
+def model_score(ModelClass, modeldir, multiplier=1):
+    #ModelClass only supports Q_Agent for now
+    print(modeldir)
+    model = ModelClass(alpha=ALPHA, gamma=GAMMA, eps=0)
+    model.import_model(modeldir)
+    w, _, _, g = play_testbed(model, Rand_Agent(), multiplier)
+    score = w/g
+
+    return score
+
 def run_test_over_models(dir):
-    q_Agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=0)
     indices = []
     scores  = []
     fnames  = os.listdir(dir) 
     #for idx in range(0,2000000,1000):
     for idx in range(0,2000000,100000):
-        """Cycle over 2,000,000 million with steps of 20,000. We have a model at every 1,000 episodes, but we don't need to sample that frequently"""
+        """Cycle over 2,000,000. We have a model at every 1,000 episodes, but we don't need to sample that frequently"""
         fname = 'q_agent_vs_rand_'+str(idx)+'.pth'
-        fdir = dir+fname
+        modeldir = dir+fname
         if fname not in fnames:
             break
-        print(fdir)
-        
-        q_Agent.import_model(fdir)
-        w, _, _, g = play_testbed(q_Agent, Rand_Agent(), 100)
-        
+        score = model_score(Q_Agent, modeldir)
         indices.append(idx)
-        scores.append(w/g)
-        if idx>100000:
+        scores.append(score)
+        if idx>1:
             break
 
     return indices, scores
+
+
+    
 
 def plotter():
     dir='./models/qagents/'
@@ -98,7 +106,11 @@ def plotter():
     plt.show()
 
 
-plotter()
+#s=model_score(Q_Agent, '.\models\qagents\q_agent_vs_rand_40000.pth',multiplier=10)
+# print(s)
+
+# s=model_score(Q_Agent, '.\models\qagents\q_agent_vs_rand_228000.pth',multiplier=10)
+# print(s)
 
 # q_Agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=0.0)
 # q_Agent.import_model("models/qagents/q_agent_vs_rand.pth")
@@ -112,3 +124,6 @@ plotter()
 
 # print(result)
 
+# model=Q_Agent()
+# for param in model.model.parameters():
+#     print(param.data)
