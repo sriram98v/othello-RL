@@ -34,7 +34,7 @@ for _ in range(NUM_EPISODES):
         
         # if agent has legal moves, select agent move and play
         if len(agent_legal_moves) != 0:
-            agent_move = agent.act(agent_current_state, agent_legal_moves)
+            agent_move = agent.get_move(agent_current_state, agent_legal_moves)
             agent_reward = board.play(agent_move,agent_color)
         
         # get other current state and legal moves
@@ -43,7 +43,7 @@ for _ in range(NUM_EPISODES):
         
         # if other has legal moves, select agent move and play
         if len(other_legal_moves) != 0:
-            other_move = other.heu_move(other_current_state, other_legal_moves)
+            other_move = other.get_move(other_current_state, other_legal_moves)
             # print(other_move, other_legal_moves)
             other_reward = board.play(other_move,other_color)
         
@@ -62,7 +62,8 @@ for _ in range(NUM_EPISODES):
         num_losses+=1
         loss = agent.learn(agent_current_state, agent_move, -1, board.get_current_state())
 
-    agent.decay_eps(num_episodes=NUM_EPISODES)
+    if _%1000==0:
+        agent.decay_eps_linear(num_episodes=NUM_EPISODES)
     pbar.update(1)
     pbar.set_description(f"loss {total_loss/num_states}")
     pbar.set_description(f"wins: {num_wins} draws: {num_draws} losses:{num_losses}")

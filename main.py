@@ -54,15 +54,15 @@ for _ in range(NUM_EPISODES):
         loss = agent.learn(agent_current_state, agent_move, 1, board.get_current_state())
         num_wins +=1
     elif black_count==white_count:
-        loss = agent.learn(agent_current_state, agent_move, 0, board.get_current_state())
+        loss = agent.learn(agent_current_state, agent_move, 0.5, board.get_current_state())
         num_draws += 1
     else:
         num_losses+=1
-        loss = agent.learn(agent_current_state, agent_move, -1, board.get_current_state())
+        loss = agent.learn(agent_current_state, agent_move, 0, board.get_current_state())
     
 
     #board.print_board()
-    agent.decay_eps(num_episodes=NUM_EPISODES)
+    agent.decay_eps_linear(num_episodes=NUM_EPISODES)
     pbar.update(1)
     pbar.set_description(f"loss {total_loss/num_states}")
     pbar.set_description(f"wins: {num_wins} draws: {num_draws} losses:{num_losses}")
