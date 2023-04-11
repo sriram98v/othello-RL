@@ -71,7 +71,7 @@ def run_test_over_models(dir):
     scores  = []
     fnames  = os.listdir(dir) 
     #for idx in range(0,2000000,1000):
-    for idx in range(0,2000000,20000):
+    for idx in range(0,2000000,100000):
         """Cycle over 2,000,000 million with steps of 20,000. We have a model at every 1,000 episodes, but we don't need to sample that frequently"""
         fname = 'q_agent_vs_rand_'+str(idx)+'.pth'
         fdir = dir+fname
