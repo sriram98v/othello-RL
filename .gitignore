@@ -1,6 +1,5 @@
 __pycache__
 log_dir/*
-__pycache__/helper.cpython-310.pyc
-__pycache__/function_approx.cpython-310.pyc
-__pycache__/env.cpython-310.pyc
-__pycache__/agents.cpython-310.pyc
+__pycache__/
+models/qagents
+models/
