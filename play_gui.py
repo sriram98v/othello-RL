@@ -5,16 +5,43 @@ from env import *
 from agents import *
 
 
-global screen
-root = Tk()
-screen = Canvas(root, width=500, height=600, background="#555",highlightthickness=0)
-screen.pack()
+def playgui(black, white):
+    """
+    this function can be call outside this script.
+    play Othello, and shown in a GUI.
+
+    Does not work with human agent
+
+    input:
+        @param black --> black agent
+        @param white --> white agent
+    output:
+        no return
+    """
+    global screen
+    root = Tk()
+    screen = Canvas(root, width=500, height=600, background="#555",highlightthickness=0)
+    screen.pack()
 
 
-# testing here
-board = Board()
-global player
-global legal_moves
+    # testing here
+    global board
+    board = Board()
+    global player
+    global legal_moves
+
+    drawbackground()
+    screen.focus_set()
+    root.wm_title("Othello")
+    
+    # BLACK, WHITE
+    result = play_game(black, white)
+    if result == "B":
+        screen.create_text(250,500,anchor="c",font=("Consolas",30), text="BLACK WINS!")
+    elif result == "W":
+        screen.create_text(250,500,anchor="c",font=("Consolas",30), text="WHITE WINS!")
+
+    root.mainloop()
 
 def reset_screen(root):
     screen.destroy()
@@ -80,19 +107,5 @@ def clickHandle(event):
 
 
 if __name__ == "__main__":
-    drawbackground()
-    screen.focus_set()
-    root.wm_title("Othello")
-    
-    bw = 0
-    ww = 0
-    # BLACK, WHITE
-    result = play_game(Rand_Agent(), Heu_Agent())
-    if result == "B":
-        screen.create_text(250,500,anchor="c",font=("Consolas",30), text="BLACK WINS!")
-    elif result == "W":
-        screen.create_text(250,500,anchor="c",font=("Consolas",30), text="WHITE WINS!")
-
-    root.mainloop()
-    
+    playgui(Rand_Agent(), Heu_Agent())
     
