@@ -20,6 +20,12 @@ class Trainable_Agent(Agent):
     def import_model(self, fname):
         pass
 
+    def init_normal(self, m):
+        if type(m) == torch.nn.Linear:
+            torch.nn.init.uniform_(m.weight, -0.5, 0.5)
+            torch.nn.init.uniform_(m.bias, -0.5, 0.5)
+
+
 class Q_Agent(Trainable_Agent):
     def __init__(self, alpha=0.01, gamma=1, eps=0.1, device=torch.device('cpu')):
         """_summary_
@@ -38,8 +44,10 @@ class Q_Agent(Trainable_Agent):
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.alpha, momentum=0.9)
         self.device = device
 
-
+        self.model.apply(self.init_normal)
         self.model.to(self.device)
+
+        
 
     def get_move(self, state, legal_moves):
         """Chooses an action given a current state using an epsilon greedy policy
@@ -74,12 +82,9 @@ class Q_Agent(Trainable_Agent):
         Returns:
             np.array: q_values
         """
-        if self.device!=torch.device('cpu'):
-            return self.model(torch.from_numpy(state).to(self.device)).detach().cpu().numpy()
-        else:
-            return self.model(torch.from_numpy(state)).detach().numpy()
+        return self.model(torch.from_numpy(state)).detach().numpy()
 
-    def learn(self, s, a, r, s_):
+    def learn(self, s, a, r, s_, is_terminal=False):
         """updates model for a single step
 
         Args:
@@ -93,28 +98,19 @@ class Q_Agent(Trainable_Agent):
         """
         self.optimizer.zero_grad()
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
-        if self.device!=torch.device('cpu'):
-            current = self.model(torch.from_numpy(s).to(self.device)) # Compute actual value
-            target = torch.clone(current)
-            target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_).to(self.device))))
-            # print(target)
-            # print(current)
-
-
-            loss = self.loss_func(current, target)
-            loss.backward() # Compute gradients
-            self.optimizer.step() # Backpropagate error
+        current = self.model(torch.from_numpy(s)) # Compute actual value
+        target = torch.clone(current).detach()
+        if is_terminal:
+            target[pos_to_index(a[0], a[1])] = r
         else:
-            current = self.model(torch.from_numpy(s)) # Compute actual value
-            target = torch.clone(current)
-            target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_))))
-            # print(target)
-            # print(current)
+            target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_).to(self.device))))
+        # print(target)
+        # print(current)
 
 
-            loss = self.loss_func(current, target)
-            loss.backward() # Compute gradients
-            self.optimizer.step() # Backpropagate error
+        loss = 64*self.loss_func(current, target)
+        loss.backward() # Compute gradients
+        self.optimizer.step() # Backpropagate error
 
         return loss.item()
     
@@ -162,7 +158,7 @@ class Heu_Agent(Agent):
         eval_score = np.sum(mul)
         return eval_score
 
-    def get_move(self, state, legal_moves):
+    def get_move(self, state, legal_moves, eps):
         '''
         input:
             @param state --> a 1D state of the current board
@@ -179,17 +175,6 @@ class Heu_Agent(Agent):
 
         # below does not work because we still do not know which move resulted which action, hence
         # unable to return "best" move
-        """all_nextstates = b.next_states(self.color)
-
-        for next_board in all_nextstates:
-            convert_board=copy.deepcopy(next_board.board)
-            if self.color == WHITE:
-                convert_board=invert_board(copy.deepcopy(convert_board))
-            new_eval = self.eval_function(convert_board)
-            if  new_eval > eval_max:
-                eval_max = new_eval
-                best_move = move
-        return best_move"""
 
         #print("------------- TEST STATE -------------")
         #print("possible legal move:")
@@ -228,7 +213,7 @@ class Heu_Agent(Agent):
             if  new_eval > eval_max:
                 eval_max = new_eval
                 best_move = move
-        return best_move
+        return eps_greedy(best_move, legal_moves=legal_moves, EPSILON=eps)
 
 class Rand_Agent(Agent):
     def __init__(self):
