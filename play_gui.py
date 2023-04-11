@@ -38,7 +38,7 @@ def update(board):
                 screen.create_oval(54+50*x,54+50*y,96+50*x,96+50*y,tags="tile {0}-{1}".format(x,y),fill="#000",outline="#000")
     
     screen.update()
-    #time.sleep(0.1)
+    time.sleep(0.5)
 
 def play_game(black_agent, white_agent, board=None):
     if board==None:
@@ -86,16 +86,12 @@ if __name__ == "__main__":
     
     bw = 0
     ww = 0
-    for _ in range(10):
-        # BLACK, WHITE
-        result = play_game(Rand_Agent(), Heu_Agent())
-        if result == "W":
-            ww+=1      
-        if result == "B":
-            bw+=1
-        #reset_screen(root)
-        print("black wins: {}".format(str(bw)))
-        print("white wins: {}".format(str(ww)))
+    # BLACK, WHITE
+    result = play_game(Rand_Agent(), Heu_Agent())
+    if result == "B":
+        screen.create_text(250,500,anchor="c",font=("Consolas",30), text="BLACK WINS!")
+    elif result == "W":
+        screen.create_text(250,500,anchor="c",font=("Consolas",30), text="WHITE WINS!")
 
     root.mainloop()
     
