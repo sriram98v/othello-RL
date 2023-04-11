@@ -1,6 +1,7 @@
 from env import *
 from agents import *
 from starts import * 
+from matplotlib import pyplot as plt
 import os
 
 ALPHA = 0.01
@@ -66,19 +67,44 @@ def play_testbed(agent, other, multiplier=1):
 
 def run_test_over_models(dir):
     q_Agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=0)
-    results = []
-    for model in os.listdir(dir):
-        q_Agent.import_model(model)
-        results.append(play_testbed(q_Agent, Rand_Agent(), 1))
-    
-    return [(_, result) for _,result in zip(range(0, 2000000, 1000), results)]
+    indices = []
+    scores  = []
+    fnames  = os.listdir(dir) 
+    #for idx in range(0,2000000,1000):
+    for idx in range(0,2000000,20000):
+        """Cycle over 2,000,000 million with steps of 20,000. We have a model at every 1,000 episodes, but we don't need to sample that frequently"""
+        fname = 'q_agent_vs_rand_'+str(idx)+'.pth'
+        fdir = dir+fname
+        if fname not in fnames:
+            break
+        print(fdir)
+        
+        q_Agent.import_model(fdir)
+        w, _, _, g = play_testbed(q_Agent, Rand_Agent(), 100)
+        
+        indices.append(idx)
+        scores.append(w/g)
+        if idx>100000:
+            break
 
+    return indices, scores
+
+def plotter():
+    dir='./models/qagents/'
+    indices, scores = run_test_over_models(dir)
+    print(indices)
+    print(scores)
+    plt.plot(indices, scores)
+    plt.show()
+
+
+plotter()
 
 # q_Agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=0.0)
 # q_Agent.import_model("models/qagents/q_agent_vs_rand.pth")
-result = play_testbed(Heu_Agent(), Rand_Agent(), 100)
+#result = play_testbed(Heu_Agent(), Rand_Agent(), 100)
 
-print(result)
+#print(result)
 
 # q_Agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=0.0)
 # q_Agent.import_model("q_agent_vs_rand_prev.pth")
