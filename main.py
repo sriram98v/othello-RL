@@ -26,7 +26,7 @@ num_draws = 0
 for _ in range(NUM_EPISODES): 
     # print('\n\n'+'='*50+'\nNEW GAME\n'+'_'*50)
     #board.reset()
-    board.set_black_winning_board()
+    board.reset()
     total_loss = 0
     num_states = 0
     episode = []
@@ -55,33 +55,22 @@ for _ in range(NUM_EPISODES):
         if board.game_ended():
             white_count, black_count, empty_count = board.count_stones()
             if black_count>white_count:
-                loss = agent.learn(learn_state, learn_move, 1, board.get_current_state())
+                loss = agent.learn(learn_state, learn_move, 1, board.get_current_state(), board.get_valid_moves(agent_color), is_terminal=True)
                 num_wins +=1
             elif black_count==white_count:
-                loss = agent.learn(learn_state, learn_move, 0.5, board.get_current_state())
+                loss = agent.learn(learn_state, learn_move, 0.5, board.get_current_state(), board.get_valid_moves(agent_color), is_terminal=True)
                 num_draws += 1
             else:
                 num_losses+=1
-                loss = agent.learn(learn_state, learn_move, 0, board.get_current_state())
+                loss = agent.learn(learn_state, learn_move, 0, board.get_current_state(), board.get_valid_moves(agent_color), is_terminal=True)
             total_loss += loss
             break
 
         else:
             if len(board.get_valid_moves(agent_color))>0:
-                loss = agent.learn(learn_state, learn_move, 0, board.get_current_state())
+                loss = agent.learn(learn_state, learn_move, 0, board.get_current_state(), board.get_valid_moves(agent_color))
                 total_loss += loss
                 num_states+=1
-        
-
-
-
-
-
-        
-
-
-
-    
 
     #board.print_board()
     agent.decay_eps_linear(num_episodes=NUM_EPISODES)

@@ -88,7 +88,7 @@ class Q_Agent(Trainable_Agent):
         """
         return self.model(torch.from_numpy(state)).detach().numpy()
 
-    def learn(self, s, a, r, s_, is_terminal=False):
+    def learn(self, s, a, r, s_, valid_moves_s_, is_terminal=False):
         """updates model for a single step
 
         Args:
@@ -104,10 +104,11 @@ class Q_Agent(Trainable_Agent):
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
         current = self.model(torch.from_numpy(s)) # Compute actual value
         target = torch.clone(current).detach()
+        s_a_values = [self.model(torch.from_numpy(s_)).detach()[pos_to_index(*i)].item() for i in valid_moves_s_]
         if is_terminal:
             target[pos_to_index(a[0], a[1])] = r
         else:
-            target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_).to(self.device))))
+            target[pos_to_index(a[0], a[1])] = r + self.gamma*max(s_a_values)
         # print(target)
         # print(current)
 
