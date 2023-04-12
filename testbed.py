@@ -69,6 +69,7 @@ def run_test_over_models(dir):
     results = []
     for model in os.listdir(dir):
         q_Agent.import_model(model)
+        q_Agent.eval()
         results.append(play_testbed(q_Agent, Rand_Agent(), 1))
     
     return [(_, result) for _,result in zip(range(0, 2000000, 1000), results)]
