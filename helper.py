@@ -83,6 +83,18 @@ def invert_board(board):
         new_board.append(temp_list)
     return new_board
 
+def eps_greedy(best_move, legal_moves, EPSILON):
+    """picks best move with probability 1-eps
+
+    Args:
+        best_move (_type_): _description_
+        legal_moves (_type_): _description_
+        eps (float): value in range(0, 1]
+    """
+    if np.random.binomial(1, EPSILON) == 1:
+        return np.random.choice(legal_moves)
+    else:
+        return best_move
 
 def main():
     pass
