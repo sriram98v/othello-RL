@@ -12,6 +12,7 @@ writer=SummaryWriter("./log_dir")
 
 board = Board()
 agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
+agent.import_model('q_agent_vs_rand_bad_start.pth')
 other = Rand_Agent()
 agent_color = BLACK
 other_color = WHITE
@@ -22,11 +23,15 @@ num_wins = 0
 num_losses = 0
 num_draws = 0
 
-for _ in range(NUM_EPISODES):
-    board.reset()
+for _ in range(NUM_EPISODES): 
+    # print('\n\n'+'='*50+'\nNEW GAME\n'+'_'*50)
+    #board.reset()
+    board.set_black_winning_board()
     total_loss = 0
     num_states = 0
     episode = []
+
+
 
     while True:        
         # get agent current state and legal moves
@@ -45,7 +50,6 @@ for _ in range(NUM_EPISODES):
         if len(other_legal_moves) != 0:
             other_move = other.get_move(board.get_current_state(), other_legal_moves)
             board.play(other_move,other_color)
-
         episode.append((agent_current_state, other_current_state))
     
         if board.game_ended():
@@ -67,15 +71,26 @@ for _ in range(NUM_EPISODES):
                 loss = agent.learn(learn_state, learn_move, 0, board.get_current_state())
                 total_loss += loss
                 num_states+=1
+        
+
+
+
+
+
+        
+
+
+
     
 
     #board.print_board()
     agent.decay_eps_linear(num_episodes=NUM_EPISODES)
     pbar.update(1)
     # pbar.set_description(f"loss {total_loss/num_states}")
-    pbar.set_description(f"wins: {num_wins} draws: {num_draws} losses:{num_losses}")
+    win_percent = '{:.2f}'.format(num_wins*100/(_+1))
+    pbar.set_description(f"wins: {num_wins} draws: {num_draws} losses:{num_losses} win%:{win_percent} diff:{num_wins-num_losses}")
     writer.add_scalar('training loss vs rand',
-                            total_loss/num_states,
+                            total_loss/(num_states+1),
                             _)
     writer.add_scalars('Cummulative score',
                             {'num_wins': num_wins,

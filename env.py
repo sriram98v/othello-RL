@@ -53,6 +53,19 @@ class Board:
     def __getitem__(self, i, j):
         return self.board[i][j]
 
+    def set_black_winning_board(self):
+        W=-1
+        self.board = [[0, 0, 1, 0, 0, 0, 0, 0],
+                      [0, W, 1, 0, 0, 0, W, 0],
+                      [1, 1, 1, 1, 1, 1, 1, 0],
+                      [1, 1, 1, W, W, 0, 0, W],
+                      [W, 1, 1, W, 1, 1, W, W],
+                      [W, W, W, 1, W, W, W, W],
+                      [W, W, W, W, W, W, W, 1],
+                      [0, 0, 1, W, W, 1, 1, 1]]
+        self.valid_moves = []
+
+
     def lookup(self, row, column, color):
         """Returns the possible positions that there exists at least one
         straight (horizontal, vertical, or diagonal) line between the
@@ -249,6 +262,18 @@ class Board:
                 if self.board[i][j] == BLACK:
                     print('B', end=' ')
                 elif self.board[i][j] == WHITE:
+                    print('W', end=' ')
+                else:
+                    print(' ', end=' ')
+                print('|', end=' ')
+            print()
+    def print_state(s):
+        for i in range(8):
+            print(i, ' |', end=' ')
+            for j in range(8):
+                if s[i][j] == BLACK:
+                    print('B', end=' ')
+                elif s[i][j] == WHITE:
                     print('W', end=' ')
                 else:
                     print(' ', end=' ')

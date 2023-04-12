@@ -45,7 +45,7 @@ class Q_Agent(Trainable_Agent):
         self.device = device
 
         self.model.apply(self.init_normal)
-        self.model.to(self.device)
+        #self.model.to(self.device)
 
         
 
@@ -59,10 +59,7 @@ class Q_Agent(Trainable_Agent):
         Returns:
             tuple: xy position on the board
         """
-        if self.device!=torch.device('cpu'):
-            q_vals = self.model(torch.from_numpy(state).to(device=self.device)).detach().cpu().numpy()
-        else:
-            q_vals = self.model(torch.from_numpy(state)).detach().numpy()
+        q_vals = self.model(torch.from_numpy(state)).detach().numpy()
         values = []
         # print(len(legal_moves))
         for move in legal_moves:
@@ -84,7 +81,25 @@ class Q_Agent(Trainable_Agent):
         """
         return self.model(torch.from_numpy(state)).detach().numpy()
 
-    def learn(self, s, a, r, s_, is_terminal=False):
+    def get_Qmax(self, s_):
+        numpy_s_=torch.from_numpy(s_).to(self.device)
+        q_vals = self.model(torch.from_numpy(s_)).detach().numpy()
+        board=Board()
+
+        
+        board.board=numpy_s_.reshape((8,8)).tolist()
+        legal_moves=board.get_valid_moves(color=BLACK)
+        if len(legal_moves)==0:
+            return 0
+        values = []
+        for move in legal_moves:
+            values.append(q_vals[pos_to_index(move[0], move[1])])
+        return np.max(np.array(values))
+
+
+
+
+    def learn(self, s, a, r, s_):
         """updates model for a single step
 
         Args:
@@ -96,19 +111,24 @@ class Q_Agent(Trainable_Agent):
         Returns:
             loss: float
         """
+        
+        '''print('\n\n'+'_'*50+'\n learning\n'+'_'*50)
+        Board.print_state(s.reshape((8,8)))
+        print(a, 'pos =',pos_to_index(a[0], a[1]))
+        print('reward =',r)
+        Board.print_state(s_.reshape((8,8)))
+        input()'''
         self.optimizer.zero_grad()
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
         current = self.model(torch.from_numpy(s)) # Compute actual value
-        target = torch.clone(current).detach()
-        if is_terminal:
-            target[pos_to_index(a[0], a[1])] = r
-        else:
-            target[pos_to_index(a[0], a[1])] = r + self.gamma*(torch.max(self.model(torch.from_numpy(s_).to(self.device))))
+        target = torch.clone(current)
+        target[pos_to_index(a[0], a[1])] = r + self.gamma*self.get_Qmax(s_)
         # print(target)
         # print(current)
+        #current = current[pos_to_index(a[0], a[1])]
+        #target = target[pos_to_index(a[0], a[1])]
 
-
-        loss = 64*self.loss_func(current, target)
+        loss = self.loss_func(current, target)
         loss.backward() # Compute gradients
         self.optimizer.step() # Backpropagate error
 
