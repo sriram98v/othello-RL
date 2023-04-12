@@ -101,6 +101,7 @@ class Q_Agent(Trainable_Agent):
             loss: float
         """
         self.optimizer.zero_grad()
+        
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
         current = self.model(torch.from_numpy(s)) # Compute actual value
         target = torch.clone(current).detach()
@@ -109,11 +110,9 @@ class Q_Agent(Trainable_Agent):
             target[pos_to_index(a[0], a[1])] = r
         else:
             target[pos_to_index(a[0], a[1])] = r + self.gamma*max(s_a_values)
-        # print(target)
-        # print(current)
 
 
-        loss = 64*self.loss_func(current, target)
+        loss = current.shape[0]*self.loss_func(current, target)
         loss.backward() # Compute gradients
         self.optimizer.step() # Backpropagate error
 
@@ -141,7 +140,7 @@ HEUR =  [[100,  -25, 10, 5, 5, 10, -25, 100],
         [-25, -25, 2, 2, 2, 2, -25, -25],
         [100, -25, 10, 5, 5, 10, -25, 100]]
 class Heu_Agent(Agent):
-    def __init__(self, heuristic=HEUR, color=WHITE):
+    def __init__(self, heuristic=HEUR, color=WHITE, eps=0.1):
         '''
         input:
             @param heuristics --> heuristics of hard coded (2D grid)
@@ -149,6 +148,7 @@ class Heu_Agent(Agent):
         '''
         self.color = color
         self.heur = copy.deepcopy(heuristic)
+        self.eps = eps
 
     def eval_function(self, curr_board):
         '''
@@ -163,7 +163,7 @@ class Heu_Agent(Agent):
         eval_score = np.sum(mul)
         return eval_score
 
-    def get_move(self, state, legal_moves, eps):
+    def get_move(self, state, legal_moves):
         '''
         input:
             @param state --> a 1D state of the current board
@@ -218,7 +218,7 @@ class Heu_Agent(Agent):
             if  new_eval > eval_max:
                 eval_max = new_eval
                 best_move = move
-        return eps_greedy(best_move, legal_moves=legal_moves, EPSILON=eps)
+        return eps_greedy(best_move, legal_moves=legal_moves, EPSILON=self.eps)
 
 class Rand_Agent(Agent):
     def __init__(self):

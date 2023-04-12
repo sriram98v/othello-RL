@@ -12,7 +12,6 @@ writer=SummaryWriter("./log_dir/train")
 
 board = Board()
 agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
-agent.import_model("./models/qagents/q_agent_vs_rand_final.pth")
 other = Rand_Agent()
 agent_color = BLACK
 other_color = WHITE
@@ -24,8 +23,6 @@ num_losses = 0
 num_draws = 0
 
 for _ in range(NUM_EPISODES): 
-    # print('\n\n'+'='*50+'\nNEW GAME\n'+'_'*50)
-    #board.reset()
     board.reset()
     total_loss = 0
     num_states = 0
