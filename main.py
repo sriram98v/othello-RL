@@ -8,7 +8,7 @@ ALPHA = 0.01
 GAMMA = 1
 EPS = 0.1
 
-writer=SummaryWriter("./log_dir/train")
+writer=SummaryWriter("./log_dir/train/rand")
 
 board = Board()
 agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
