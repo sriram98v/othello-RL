@@ -8,11 +8,12 @@ ALPHA = 0.01
 GAMMA = 1
 EPS = 0.1
 
-writer=SummaryWriter("./log_dir/train")
+writer=SummaryWriter("./log_dir/test")
 
 board = Board()
 agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
 agent.import_model("./models/qagents/q_agent_vs_rand_final.pth")
+agent.eval()
 other = Rand_Agent()
 agent_color = BLACK
 other_color = WHITE
@@ -52,38 +53,21 @@ for _ in range(NUM_EPISODES):
         if board.game_ended():
             white_count, black_count, empty_count = board.count_stones()
             if black_count>white_count:
-                loss = agent.learn(learn_state, learn_move, 1, board.get_current_state())
                 num_wins +=1
             elif black_count==white_count:
-                loss = agent.learn(learn_state, learn_move, 0.5, board.get_current_state())
                 num_draws += 1
             else:
                 num_losses+=1
-                loss = agent.learn(learn_state, learn_move, 0, board.get_current_state())
-            total_loss += loss
             break
-
-        else:
-            if len(board.get_valid_moves(agent_color))>0:
-                loss = agent.learn(learn_state, learn_move, 0, board.get_current_state())
-                total_loss += loss
-                num_states+=1
     
 
     #board.print_board()
-    agent.decay_eps_linear(num_episodes=NUM_EPISODES)
     pbar.update(1)
     # pbar.set_description(f"loss {total_loss/num_states}")
     pbar.set_description(f"wins: {num_wins} draws: {num_draws} losses:{num_losses}")
-    writer.add_scalar('training loss vs rand',
-                            total_loss/num_states,
-                            _)
     writer.add_scalars('Cummulative score',
                             {'num_wins': num_wins,
                              'num_draws': num_draws,
                              'num_losses': num_losses},
                             _)
-#     if _%1000==0:
-#         agent.export_model(f"./models/qagents/q_agent_vs_rand_{_}.pth")
-# agent.export_model(f"./models/qagents/q_agent_vs_rand_final.pth")
 

@@ -47,7 +47,11 @@ class Q_Agent(Trainable_Agent):
         self.model.apply(self.init_normal)
         self.model.to(self.device)
 
-        
+    def eval(self):
+        self.model.eval()
+
+    def train(self):
+        self.model.train()
 
     def get_move(self, state, legal_moves):
         """Chooses an action given a current state using an epsilon greedy policy
