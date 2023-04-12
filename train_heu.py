@@ -83,7 +83,7 @@ for _ in range(NUM_EPISODES):
                              'num_draws': num_draws,
                              'num_losses': num_losses},
                             _)
-#     if _%1000==0:
-#         agent.export_model(f"./models/qagents/q_agent_vs_rand_{_}.pth")
-# agent.export_model(f"./models/qagents/q_agent_vs_rand_final.pth")
+    if _%1000==0:
+        agent.export_model(f"./models/qagents/q_agent_vs_heu_{_}.pth")
+agent.export_model(f"./models/qagents/q_agent_vs_heu_final.pth")
 
