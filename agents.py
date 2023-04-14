@@ -20,6 +20,12 @@ class Trainable_Agent(Agent):
     def import_model(self, fname):
         pass
 
+    def eval(self):
+        self.model.eval()
+
+    def train(self):
+        self.model.train()
+
     def init_normal(self, m):
         if type(m) == torch.nn.Linear:
             torch.nn.init.uniform_(m.weight, -0.5, 0.5)
@@ -101,7 +107,7 @@ class Q_Agent(Trainable_Agent):
             loss: float
         """
         self.optimizer.zero_grad()
-        
+
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
         current = self.model(torch.from_numpy(s)) # Compute actual value
         target = torch.clone(current).detach()
@@ -140,7 +146,7 @@ HEUR =  [[100,  -25, 10, 5, 5, 10, -25, 100],
         [-25, -25, 2, 2, 2, 2, -25, -25],
         [100, -25, 10, 5, 5, 10, -25, 100]]
 class Heu_Agent(Agent):
-    def __init__(self, heuristic=HEUR, color=WHITE, eps=0.1):
+    def __init__(self, heuristic=HEUR, color=WHITE, eps=0.0):
         '''
         input:
             @param heuristics --> heuristics of hard coded (2D grid)
