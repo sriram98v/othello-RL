@@ -65,12 +65,13 @@ def play_testbed(agent, other, multiplier=1):
 
     return agent_wins, agent_loss, agent_draws, games_played
 
-def model_score(ModelClass, modeldir, multiplier=1):
+def model_score(ModelClass, OtherClass, modeldir, multiplier=1):
     #ModelClass only supports Q_Agent for now
     print(modeldir)
     model = ModelClass(alpha=ALPHA, gamma=GAMMA, eps=0)
     model.import_model(modeldir)
-    w, _, _, g = play_testbed(model, Rand_Agent(), multiplier)
+    other = OtherClass() 
+    w, _, _, g = play_testbed(model, other, multiplier)
     score = w/g
 
     return score
@@ -80,18 +81,18 @@ def run_test_over_models(dir):
     scores  = []
     fnames  = os.listdir(dir) 
     #for idx in range(0,2000000,1000):
-    for idx in range(0,2000000,100000):
-        """Cycle over 2,000,000. We have a model at every 1,000 episodes, but we don't need to sample that frequently"""
+    for idx in range(0, 500000+1, 50000):
+        """Cycle over 500,000. We have a model at every 1,000 episodes, but we don't need to sample that frequently"""
         fname = 'q_agent_vs_rand_'+str(idx)+'.pth'
         modeldir = dir+fname
         if fname not in fnames:
             break
-        score = model_score(Q_Agent, modeldir)
+        score = model_score(Q_Agent, Rand_Agent, modeldir, 100)
+        #score = 0
         indices.append(idx)
         scores.append(score)
-        if idx>1:
-            break
-
+    indices = np.array(indices)
+    scores = np.array(scores)
     return indices, scores
 
 
@@ -100,14 +101,16 @@ def run_test_over_models(dir):
 def plotter():
     dir='./models/qagents/'
     indices, scores = run_test_over_models(dir)
-    print(indices)
-    print(scores)
+    result=np.stack((indices, scores)).T
+    np.savetxt('qagent_rand_rand_scores.txt', result)
     plt.plot(indices, scores)
     plt.show()
 
 
-#s=model_score(Q_Agent, '.\models\qagents\q_agent_vs_rand_40000.pth',multiplier=10)
-# print(s)
+plotter()
+
+#s=model_score(Q_Agent, Rand_Agent,'.\models\qagents\q_agent_vs_rand_40000.pth',multiplier=10)
+#print(s)
 
 # s=model_score(Q_Agent, '.\models\qagents\q_agent_vs_rand_228000.pth',multiplier=10)
 # print(s)
