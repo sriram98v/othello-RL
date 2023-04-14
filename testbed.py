@@ -70,7 +70,8 @@ def model_score(ModelClass, modeldir, multiplier=1):
     print(modeldir)
     model = ModelClass(alpha=ALPHA, gamma=GAMMA, eps=0)
     model.import_model(modeldir)
-    w, _, _, g = play_testbed(model, Rand_Agent(), multiplier)
+    model.eval()
+    w, _, _, g = play_testbed(model, Heu_Agent(eps=0), multiplier)
     score = w/g
 
     return score
@@ -106,8 +107,8 @@ def plotter():
     plt.show()
 
 
-#s=model_score(Q_Agent, '.\models\qagents\q_agent_vs_rand_40000.pth',multiplier=10)
-# print(s)
+s=model_score(Q_Agent, './models/qagents/q_agent_vs_heu_260000.pth',multiplier=1)
+print(s)
 
 # s=model_score(Q_Agent, '.\models\qagents\q_agent_vs_rand_228000.pth',multiplier=10)
 # print(s)

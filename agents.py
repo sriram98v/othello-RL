@@ -20,6 +20,12 @@ class Trainable_Agent(Agent):
     def import_model(self, fname):
         pass
 
+    def eval(self):
+        self.model.eval()
+
+    def train(self):
+        self.model.train()
+
     def init_normal(self, m):
         if type(m) == torch.nn.Linear:
             torch.nn.init.uniform_(m.weight, -0.5, 0.5)
@@ -101,7 +107,7 @@ class Q_Agent(Trainable_Agent):
             loss: float
         """
         self.optimizer.zero_grad()
-        
+
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
         current = self.model(torch.from_numpy(s)) # Compute actual value
         target = torch.clone(current).detach()
