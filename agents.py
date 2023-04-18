@@ -146,7 +146,7 @@ HEUR =  [[100,  -25, 10, 5, 5, 10, -25, 100],
         [-25, -25, 2, 2, 2, 2, -25, -25],
         [100, -25, 10, 5, 5, 10, -25, 100]]
 class Heu_Agent(Agent):
-    def __init__(self, heuristic=HEUR, color=WHITE, eps=0.1):
+    def __init__(self, heuristic=HEUR, color=WHITE, eps=0.0):
         '''
         input:
             @param heuristics --> heuristics of hard coded (2D grid)

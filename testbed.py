@@ -33,7 +33,7 @@ def play_game(black_agent, white_agent, board=None):
     return DRAW
        
 
-def play_testbed(agent, other, multiplier=1):
+def play_testbed(agent, other, multiplier=1, both_colors=False):
     """multiplier is for random agents"""
     starting_boards=generate_starting_boards()
     agent_wins   = 0
@@ -53,25 +53,26 @@ def play_testbed(agent, other, multiplier=1):
             games_played+=1
             #input()
 
-
-            # result2=play_game(other, agent, board=b)
-            # if result2 == WHITE_WIN:
-            #     agent_wins  += 1
-            # elif result2 == BLACK_WIN:
-            #     agent_loss  += 1
-            # else:
-            #     agent_draws += 1
-            # games_played+=1
+            if both_colors:#If we want agent to play both colors
+                result2=play_game(other, agent, board=b)
+                if result2 == WHITE_WIN:
+                    agent_wins  += 1
+                elif result2 == BLACK_WIN:
+                    agent_loss  += 1
+                else:
+                    agent_draws += 1
+                games_played+=1
 
     return agent_wins, agent_loss, agent_draws, games_played
 
-def model_score(ModelClass, modeldir, multiplier=1):
+def model_score(ModelClass, OtherClass, modeldir, multiplier=1):
     #ModelClass only supports Q_Agent for now
     print(modeldir)
     model = ModelClass(alpha=ALPHA, gamma=GAMMA, eps=0)
     model.import_model(modeldir)
     model.eval()
-    w, _, _, g = play_testbed(model, Heu_Agent(eps=0), multiplier)
+    other = OtherClass()
+    w, _, _, g = play_testbed(model, other, multiplier)
     score = w/g
 
     return score
@@ -81,50 +82,32 @@ def run_test_over_models(dir):
     scores  = []
     fnames  = os.listdir(dir) 
     #for idx in range(0,2000000,1000):
-    for idx in range(0,2000000,100000):
+    for idx in range(0,2000000+1,100000):
         """Cycle over 2,000,000. We have a model at every 1,000 episodes, but we don't need to sample that frequently"""
         fname = 'q_agent_vs_rand_'+str(idx)+'.pth'
         modeldir = dir+fname
         if fname not in fnames:
             break
         score = model_score(Q_Agent, modeldir)
+        #score = 0
         indices.append(idx)
         scores.append(score)
-        if idx>1:
-            break
-
+    indices = np.array(indices)
+    scores  = np.array(scores)
     return indices, scores
 
 
-    
-
-def plotter():
+def plotter():#also saves plot in text file
     dir='./models/qagents/'
     indices, scores = run_test_over_models(dir)
-    print(indices)
-    print(scores)
+    result=np.stack((indices, scores)).T
+    np.savetxt('qagent_rand_rand_scores.txt', result)
     plt.plot(indices, scores)
     plt.show()
 
 
-s=model_score(Q_Agent, './models/qagents/q_agent_vs_heu_260000.pth',multiplier=1)
-print(s)
+#s=model_score(Q_Agent, Rand_Agent, './models/qagents/q_agent_vs_heu_260000.pth', multiplier=1)
+#print(s)
 
-# s=model_score(Q_Agent, '.\models\qagents\q_agent_vs_rand_228000.pth',multiplier=10)
-# print(s)
+plotter()
 
-# q_Agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=0.0)
-# q_Agent.import_model("models/qagents/q_agent_vs_rand.pth")
-#result = play_testbed(Heu_Agent(), Rand_Agent(), 100)
-
-#print(result)
-
-# q_Agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=0.0)
-# q_Agent.import_model("q_agent_vs_rand_prev.pth")
-# result = play_testbed(q_Agent, Rand_Agent(), 100)
-
-# print(result)
-
-# model=Q_Agent()
-# for param in model.model.parameters():
-#     print(param.data)
