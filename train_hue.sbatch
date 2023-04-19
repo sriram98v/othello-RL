@@ -3,10 +3,11 @@
 # Copy/paste this job script into a text file and submit with the command:
 #    sbatch thefilename
 
-#SBATCH --time=48:00:00   # walltime limit (HH:MM:SS)
+#SBATCH --time=24:00:00   # walltime limit (HH:MM:SS)
 #SBATCH --nodes=1   # number of nodes
-#SBATCH --ntasks-per-node=36   # 36 processor core(s) per node 
+#SBATCH --ntasks-per-node=64   # 64 processor core(s) per node
 #SBATCH --mem=64G   # maximum memory per node
+#SBATCH --partition=huge    # huge node(s)
 #SBATCH --job-name="@train_hue"
 #SBATCH --output="@train_hue" # job standard output file (%j replaced by job id)
 

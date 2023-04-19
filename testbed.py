@@ -82,14 +82,14 @@ def run_test_over_models(dir):
     scores  = []
     fnames  = os.listdir(dir) 
     #for idx in range(0,2000000,1000):
-    for idx in range(0,2000000+1,100000):
+    for idx in range(0,500000+1,5000):
         """Cycle over 2,000,000. We have a model at every 1,000 episodes, but we don't need to sample that frequently"""
         fname = 'q_agent_vs_rand_'+str(idx)+'.pth'
         modeldir = dir+fname
         if fname not in fnames:
             break
-        score = model_score(Q_Agent, modeldir)
-        #score = 0
+        #score = model_score(Q_Agent, modeldir)
+        score = 0
         indices.append(idx)
         scores.append(score)
     indices = np.array(indices)
