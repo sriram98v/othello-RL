@@ -130,7 +130,7 @@ class Q_Agent(Trainable_Agent):
         torch.save(self.model.state_dict(), fname)
 
     def import_model(self, fname="./q_model.pth"):
-        # print(self.model.hidden2.weight)
+        print(f"Loaded model from {fname}")
         self.model.load_state_dict(torch.load(fname))
         # print(self.model.hidden2.weight)
         # print(f"loaded from {fname}")
@@ -260,7 +260,7 @@ class Sarsa_Agent(Trainable_Agent):
         torch.save(self.model.state_dict(), fname)
 
     def import_model(self, fname="./q_model.pth"):
-        # print(self.model.hidden2.weight)
+        print(f"Loaded model from {fname}")
         self.model.load_state_dict(torch.load(fname))
         # print(self.model.hidden2.weight)
         # print(f"loaded from {fname}")
