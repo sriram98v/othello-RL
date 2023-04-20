@@ -14,7 +14,7 @@ args = parser.parse_args()
 
 """
 usage:
-python train_hue.py --a <agent> --t <trainer> --s <path>
+python train_heu.py --a <agent> --t <trainer> --s <path>
 <agent>, choose {q,s}: 
     q --> q agent
     s --> sarsa agent

@@ -7,13 +7,21 @@ import argparse
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--a', type=str, required=True) # agent type.
+parser.add_argument('--t', type=str, required=True) # trainer type.
 parser.add_argument('--s', type=str, required=True) # save directory location.
 # save directory argument
 args = parser.parse_args() 
 
 """
 usage:
-python testbed.py --s <path>
+python train_heu.py --a <agent> --t <trainer> --s <path>
+<agent>, choose {q,s}: 
+    q --> q agent
+    s --> sarsa agent
+<trainer>, choose {h,r}:
+    h --> heuristic trainer
+    r --> random trainer
 <path>:
     for loading model
     path up until before models/logs
@@ -93,16 +101,18 @@ def model_score(AgentClass, OpponentClass, modeldir, multiplier=1):
     return score
 
 names = {
-    Q_Agent: "qagent",
-    Sarsa_Agent: "sarsaagent",
-    Rand_Agent: "rand",
-    Heu_Agent: "heu",
+    "q": "qagent",
+    "s": "sarsaagent",
+    "r": "rand",
+    "h": "heu",
 }
+
+if args.a == "h"
 
 def run_test_over_models(AgentClass, TrainerClass, OpponentClass, maxepisode=2000000, episodestep=5000):
     """
-    agentname must be one of {'qagent', 'sarsaagent'}
-    othername must be one of {'heu', 'rand'}
+    agentname must be one of {'qagent', 'sarsaagent'} --> i.e. args.a must be "q" or "s"
+    othername must be one of {'heu', 'rand'} --> i.e. args.t, and args.o must be "h" or "r"
     """
     indices = []
     scores  = []
@@ -137,5 +147,5 @@ def run_test_over_models(AgentClass, TrainerClass, OpponentClass, maxepisode=200
 
 
 
-run_test_over_models(Q_Agent, Heu_Agent, Rand_Agent)
+run_test_over_models(args.a, args.t, args.o)
 
