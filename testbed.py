@@ -111,8 +111,6 @@ names = {
     "h": "heu",
 }
 
-if args.a == "h"
-
 def run_test_over_models(AgentClass, TrainerClass, OpponentClass, maxepisode=2000000, episodestep=5000):
     """
     agentname must be one of {'qagent', 'sarsaagent'} --> i.e. args.a must be "q" or "s"
