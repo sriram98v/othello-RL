@@ -32,7 +32,6 @@ def play_game(black_agent, white_agent, board=None):
         return WHITE_WIN
     return DRAW
        
-
 def play_testbed(agent, other, multiplier=1, both_colors=False):
     """multiplier is for random agents"""
     starting_boards=generate_starting_boards()
@@ -65,49 +64,62 @@ def play_testbed(agent, other, multiplier=1, both_colors=False):
 
     return agent_wins, agent_loss, agent_draws, games_played
 
-def model_score(ModelClass, OtherClass, modeldir, multiplier=1):
+def model_score(AgentClass, OpponentClass, modeldir, multiplier=1):
     #ModelClass only supports Q_Agent for now
     print(modeldir)
-    model = ModelClass(alpha=ALPHA, gamma=GAMMA, eps=0)
+    model = AgentClass(eps=0)
     model.import_model(modeldir)
     model.eval()
-    other = OtherClass()
+    other = OpponentClass() #Assuming it is fully deterministic
     w, _, _, g = play_testbed(model, other, multiplier)
     score = w/g
 
     return score
 
-def run_test_over_models(dir):
+names = {
+    Q_Agent: "qagent",
+    Sarsa_Agent: "sarsaagent",
+    Rand_Agent: "rand",
+    Heu_Agent: "heu",
+}
+
+def run_test_over_models(AgentClass, TrainerClass, OpponentClass, maxepisode=2000000, episodestep=5000):
+    """
+    agentname must be one of {'qagent', 'sarsaagent'}
+    othername must be one of {'heu', 'rand'}
+    """
     indices = []
     scores  = []
+    #need to check backslash or frontslash
+    agentname = names[AgentClass]
+    trainername = names[TrainerClass]
+    opponentname = names[OpponentClass]
+
+    dir='./models/'+agentname+'/'+trainername+'/'
     fnames  = os.listdir(dir) 
-    #for idx in range(0,2000000,1000):
-    for idx in range(0,500000+1,5000):
-        """Cycle over 2,000,000. We have a model at every 1,000 episodes, but we don't need to sample that frequently"""
-        fname = 'q_agent_vs_rand_'+str(idx)+'.pth'
+    for idx in range(0,maxepisode+1, episodestep):
+        """Cycle over maxepisode. We have a model at every episodestep episodes, but we don't need to sample that frequently"""
+        fname = agentname+'_vs_'+trainername+'_'+str(idx)+'.pth'
         modeldir = dir+fname
         if fname not in fnames:
-            break
-        #score = model_score(Q_Agent, modeldir)
+            print('FATAL ERROR, model not found', fname)
+            exit()
+        print('scoring ',modeldir)
+        score = model_score(AgentClass, OpponentClass, modeldir)
         score = 0
         indices.append(idx)
         scores.append(score)
     indices = np.array(indices)
     scores  = np.array(scores)
+    result=np.stack((indices, scores)).T
+
+    outputdir = './results/'
+    outputfname = agentname+'_'+trainername+'_'+opponentname+'_scores.txt'
+    np.savetxt(outputdir+outputfname, result)
     return indices, scores
 
 
-def plotter():#also saves plot in text file
-    dir='./models/qagents/'
-    indices, scores = run_test_over_models(dir)
-    result=np.stack((indices, scores)).T
-    np.savetxt('qagent_rand_rand_scores.txt', result)
-    plt.plot(indices, scores)
-    plt.show()
 
 
-#s=model_score(Q_Agent, Rand_Agent, './models/qagents/q_agent_vs_heu_260000.pth', multiplier=1)
-#print(s)
-
-plotter()
+run_test_over_models(Q_Agent, Heu_Agent, Rand_Agent)
 
