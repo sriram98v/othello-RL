@@ -31,7 +31,6 @@ ALPHA = 0.01
 GAMMA = 1
 EPS = 0.1
 
-
 board = Board()
 # agent selection based on parameter
 agent_dir = ""
@@ -46,7 +45,6 @@ else:
     print("--- check usage in code ---")
     exit()
 
-
 other = Heu_Agent(eps=0)
 trainer_dir = ""
 if args.t == "h":
@@ -59,8 +57,12 @@ else:
     print("--- check usage in code ---")
     exit()
 
+latest_iter = get_latest_iter(agent_dir, trainer_dir, args.s)
 
-writer=SummaryWriter(f"{args.s}/logs/{agent_dir}/{train_dir}")
+agent.import_model(f"{args.s}/models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_{latest_iter}.pth")
+agent.update_eps(latest_iter)
+
+writer=SummaryWriter(f"./logs/{agent_dir}/{trainer_dir}")
 
 agent_color = BLACK
 other_color = WHITE
