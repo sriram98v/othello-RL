@@ -152,6 +152,7 @@ class Sarsa_Agent(Trainable_Agent):
         self.loss_func = torch.nn.MSELoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.alpha, momentum=0.9)
         self.device = device
+        self.next_action = None
 
         self.model.apply(self.init_normal)
         self.model.to(self.device)
@@ -172,19 +173,22 @@ class Sarsa_Agent(Trainable_Agent):
         Returns:
             tuple: xy position on the board
         """
-        if self.device!=torch.device('cpu'):
-            q_vals = self.model(torch.from_numpy(state).to(device=self.device)).detach().cpu().numpy()
+        if self.next_action:
+            return self.next_action
         else:
-            q_vals = self.model(torch.from_numpy(state)).detach().numpy()
-        values = []
-        # print(len(legal_moves))
-        for move in legal_moves:
-            values.append(q_vals[pos_to_index(move[0], move[1])])
+            if self.device!=torch.device('cpu'):
+                q_vals = self.model(torch.from_numpy(state).to(device=self.device)).detach().cpu().numpy()
+            else:
+                q_vals = self.model(torch.from_numpy(state)).detach().numpy()
+            values = []
+            # print(len(legal_moves))
+            for move in legal_moves:
+                values.append(q_vals[pos_to_index(move[0], move[1])])
 
-        if random.random() > self.eps:
-            return legal_moves[np.argmax(np.array(values))]
-        else:
-            return legal_moves[np.random.randint(len(legal_moves))]
+            if random.random() > self.eps:
+                return legal_moves[np.argmax(np.array(values))]
+            else:
+                return legal_moves[np.random.randint(len(legal_moves))]
 
     def q_vals(self, state):
         """Return q values of all actions given a state
@@ -210,6 +214,7 @@ class Sarsa_Agent(Trainable_Agent):
             loss: float
         """
         self.optimizer.zero_grad()
+        self.next_action = None
 
         # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
         current = self.model(torch.from_numpy(s)) # Compute actual value
@@ -219,12 +224,11 @@ class Sarsa_Agent(Trainable_Agent):
         if is_terminal:
             target[pos_to_index(a[0], a[1])] = r
         else:
-            #target[pos_to_index(a[0], a[1])] = r + self.gamma*max(s_a_values)  -> from Q agent
-            move = self.get_move(self, s_, valid_moves_s_)
-            idx = pos_to_index(move[0],move[1])
+            self.next_action = self.get_move(s_, valid_moves_s_)
+            # target[pos_to_index(a[0], a[1])] = r + self.gamma*max(s_a_values)  -> from Q agent
+            # move = self.get_move(self, s_, valid_moves_s_)
+            idx = pos_to_index(self.next_action[0], self.next_action[1])
             target[pos_to_index(a[0], a[1])] = r + self.gamma*s_a_values[idx]
-
-        # TODO: 
         
         loss = current.shape[0]*self.loss_func(current, target)
         loss.backward() # Compute gradients

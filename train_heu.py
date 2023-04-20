@@ -22,17 +22,18 @@ ALPHA = 0.01
 GAMMA = 1
 EPS = 0.1
 
-global writer
-writer=SummaryWriter("./log_dir/train/heu")
 
+writer=SummaryWriter("./log_dir/qagent/heu")
 board = Board()
 # agent selection based on parameter
-global agent
+agent = Trainable_Agent()
 if args.a == "q":
     agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
+    writer=SummaryWriter("./log_dir/qagent/heu")
 elif args.a == "s":
     #TODO: add sarsa agent here
     agent = Sarsa_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
+    writer=SummaryWriter("./log_dir/sarsaagent/heu")
 else:
     print("--- usage ---")
     print("python train_hue.py --a <agent type>\n <agent type> = {q,s}\n q --> q agent\n s--> sarsa agent")
@@ -113,6 +114,7 @@ for _ in range(NUM_EPISODES):
                              'num_losses': num_losses},
                             _)
     if _%1000==0:
-        agent.export_model(f"./models/qagents/q_agent_vs_heu_{_}.pth")
-agent.export_model(f"./models/qagents/q_agent_vs_heu_final.pth")
+        agent.export_model(f"./models/sarsa/q_agent_vs_heu_{_}.pth")
+agent.export_model(f"./models/qagents/sarsa_vs_rand_"+str(NUM_EPISODES)+".pth")
+agent.export_model(f"./models/sarsa/sarsa_vs_heu_final.pth")
 
