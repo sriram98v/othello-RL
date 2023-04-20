@@ -122,7 +122,6 @@ def run_test_over_models(AgentClass, TrainerClass, OpponentClass, maxepisode=200
             exit()
         print('scoring ',modeldir)
         score = model_score(AgentClass, OpponentClass, modeldir)
-        score = 0
         indices.append(idx)
         scores.append(score)
     indices = np.array(indices)
@@ -137,5 +136,5 @@ def run_test_over_models(AgentClass, TrainerClass, OpponentClass, maxepisode=200
 
 
 
-run_test_over_models(Q_Agent, Heu_Agent, Rand_Agent)
+run_test_over_models(Sarsa_Agent, Heu_Agent, Rand_Agent, 40, 10)
 
