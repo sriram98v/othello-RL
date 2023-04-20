@@ -158,6 +158,8 @@ class Sarsa_Agent(Trainable_Agent):
         self.model.to(self.device)
 
     def eval(self):
+        """Freezes NN
+        """
         self.model.eval()
 
     def train(self):
