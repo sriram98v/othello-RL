@@ -31,7 +31,6 @@ class Trainable_Agent(Agent):
             torch.nn.init.uniform_(m.weight, -0.5, 0.5)
             torch.nn.init.uniform_(m.bias, -0.5, 0.5)
 
-
 class Q_Agent(Trainable_Agent):
     def __init__(self, alpha=0.01, gamma=1, eps=0.1, device=torch.device('cpu')):
         """_summary_
@@ -118,6 +117,115 @@ class Q_Agent(Trainable_Agent):
             target[pos_to_index(a[0], a[1])] = r + self.gamma*max(s_a_values)
 
 
+        loss = current.shape[0]*self.loss_func(current, target)
+        loss.backward() # Compute gradients
+        self.optimizer.step() # Backpropagate error
+
+        return loss.item()
+    
+    def decay_eps_linear(self, num_episodes):
+        self.eps -= self.eps_original/num_episodes
+
+    def export_model(self, fname="./q_model.pth"):
+        torch.save(self.model.state_dict(), fname)
+
+    def import_model(self, fname="./q_model.pth"):
+        # print(self.model.hidden2.weight)
+        self.model.load_state_dict(torch.load(fname))
+        # print(self.model.hidden2.weight)
+        # print(f"loaded from {fname}")
+
+class Sarsa_Agent(Trainable_Agent):
+    def __init__(self, alpha=0.01, gamma=1, eps=0.1, device=torch.device('cpu')):
+        """_summary_
+
+        Args:
+            alpha (float, optional): learning rate of the NN. Defaults to 0.01.
+            gamma (int, optional): discount factor. Defaults to 1.
+            eps (float, optional): exploration parameter. Defaults to 0.1.
+        """
+        self.model = Q_Network()
+        self.alpha = alpha
+        self.gamma = gamma
+        self.eps = eps # change in future
+        self.eps_original = eps
+        self.loss_func = torch.nn.MSELoss()
+        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.alpha, momentum=0.9)
+        self.device = device
+
+        self.model.apply(self.init_normal)
+        self.model.to(self.device)
+
+    def eval(self):
+        self.model.eval()
+
+    def train(self):
+        self.model.train()
+
+    def get_move(self, state, legal_moves):
+        """Chooses an action given a current state using an epsilon greedy policy
+
+        Args:
+            q_vals (np.array): q values of all actions for a state
+            legal_moves (list): all legal moves on the board
+
+        Returns:
+            tuple: xy position on the board
+        """
+        if self.device!=torch.device('cpu'):
+            q_vals = self.model(torch.from_numpy(state).to(device=self.device)).detach().cpu().numpy()
+        else:
+            q_vals = self.model(torch.from_numpy(state)).detach().numpy()
+        values = []
+        # print(len(legal_moves))
+        for move in legal_moves:
+            values.append(q_vals[pos_to_index(move[0], move[1])])
+
+        if random.random() > self.eps:
+            return legal_moves[np.argmax(np.array(values))]
+        else:
+            return legal_moves[np.random.randint(len(legal_moves))]
+
+    def q_vals(self, state):
+        """Return q values of all actions given a state
+
+        Args:
+            state (np.array): State
+
+        Returns:
+            np.array: q_values
+        """
+        return self.model(torch.from_numpy(state)).detach().numpy()
+
+    def learn(self, s, a, r, s_, valid_moves_s_, is_terminal=False):
+        """updates model for a single step
+
+        Args:
+            s (np.array): current state
+            a (tuple): position on board
+            r (float): reward
+            s_ (np.array): next state
+
+        Returns:
+            loss: float
+        """
+        self.optimizer.zero_grad()
+
+        # Q-Learning target is Q*(S, A) <- r + γ max_a Q(S', a)
+        current = self.model(torch.from_numpy(s)) # Compute actual value
+        target = torch.clone(current).detach()
+        #s_a_values = [self.model(torch.from_numpy(s_)).detach()[pos_to_index(*i)].item() for i in valid_moves_s_]  -> from Q agent
+        s_a_values = self.q_vals(s_)
+        if is_terminal:
+            target[pos_to_index(a[0], a[1])] = r
+        else:
+            #target[pos_to_index(a[0], a[1])] = r + self.gamma*max(s_a_values)  -> from Q agent
+            move = self.get_move(self, s_, valid_moves_s_)
+            idx = pos_to_index(move[0],move[1])
+            target[pos_to_index(a[0], a[1])] = r + self.gamma*s_a_values[idx]
+
+        # TODO: 
+        
         loss = current.shape[0]*self.loss_func(current, target)
         loss.backward() # Compute gradients
         self.optimizer.step() # Backpropagate error
