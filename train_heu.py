@@ -8,10 +8,10 @@ ALPHA = 0.01
 GAMMA = 1
 EPS = 0.1
 
-writer=SummaryWriter("./log_dir/train/heu")
+writer=SummaryWriter("./log_dir/sarsaagent/heu")
 
 board = Board()
-agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
+agent = Sarsa_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
 other = Heu_Agent(eps=0)
 agent_color = BLACK
 other_color = WHITE
@@ -84,6 +84,7 @@ for _ in range(NUM_EPISODES):
                              'num_losses': num_losses},
                             _)
     if _%1000==0:
-        agent.export_model(f"./models/qagents/q_agent_vs_heu_{_}.pth")
-agent.export_model(f"./models/qagents/q_agent_vs_heu_final.pth")
+        agent.export_model(f"./models/sarsa/q_agent_vs_heu_{_}.pth")
+agent.export_model(f"./models/qagents/sarsa_vs_rand_"+str(NUM_EPISODES)+".pth")
+agent.export_model(f"./models/sarsa/sarsa_vs_heu_final.pth")
 
