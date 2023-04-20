@@ -3,6 +3,22 @@ from agents import *
 from starts import * 
 from matplotlib import pyplot as plt
 import os
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--s', type=str, required=True) # save directory location.
+# save directory argument
+args = parser.parse_args() 
+
+"""
+usage:
+python testbed.py --s <path>
+<path>:
+    for loading model
+    path up until before models/logs
+"""
+
 
 ALPHA = 0.01
 GAMMA = 1
@@ -95,7 +111,7 @@ def run_test_over_models(AgentClass, TrainerClass, OpponentClass, maxepisode=200
     trainername = names[TrainerClass]
     opponentname = names[OpponentClass]
 
-    dir='./models/'+agentname+'/'+trainername+'/'
+    dir=f'{args.s}/models/'+agentname+'/'+trainername+'/'
     fnames  = os.listdir(dir) 
     for idx in range(0,maxepisode+1, episodestep):
         """Cycle over maxepisode. We have a model at every episodestep episodes, but we don't need to sample that frequently"""
@@ -113,7 +129,7 @@ def run_test_over_models(AgentClass, TrainerClass, OpponentClass, maxepisode=200
     scores  = np.array(scores)
     result=np.stack((indices, scores)).T
 
-    outputdir = './results/'
+    outputdir = f'{args.s}/results/'
     outputfname = agentname+'_'+trainername+'_'+opponentname+'_scores.txt'
     np.savetxt(outputdir+outputfname, result)
     return indices, scores
