@@ -47,10 +47,10 @@ else:
 
 other = Heu_Agent(eps=0)
 trainer_dir = ""
-if args.a == "h":
+if args.t == "h":
     other = Heu_Agent(eps=0)
     trainer_dir = "heu"
-elif args.a == "r":
+elif args.t == "r":
     other = Rand_Agent()
     trainer_dir = "rand"
 else:
@@ -59,21 +59,22 @@ else:
 
 latest_iter = get_latest_iter(agent_dir, trainer_dir, args.s)
 
-agent.import_model(f"{args.s}/models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_{latest_iter}.pth")
-agent.update_eps(latest_iter)
+if latest_iter>0:
+    agent.import_model(f"{args.s}/models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_{latest_iter}.pth")
+    agent.update_eps(latest_iter, NUM_EPISODES)
 
-writer=SummaryWriter(f"./logs/{agent_dir}/{trainer_dir}")
+writer=SummaryWriter(f"{args.s}/logs/{agent_dir}/{trainer_dir}")
 
 agent_color = BLACK
 other_color = WHITE
 
-pbar = tqdm.tqdm(total=NUM_EPISODES)
+pbar = tqdm.tqdm(range(latest_iter, NUM_EPISODES))
 
 num_wins = 0
 num_losses = 0
 num_draws = 0
 
-for _ in range(NUM_EPISODES): 
+for _ in range(latest_iter, NUM_EPISODES): 
     board.reset()
     total_loss = 0
     num_states = 0
