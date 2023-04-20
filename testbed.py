@@ -9,17 +9,21 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--a', type=str, required=True) # agent type.
 parser.add_argument('--t', type=str, required=True) # trainer type.
+parser.add_argument('--o', type=str, required=True) # opponent type.
 parser.add_argument('--s', type=str, required=True) # save directory location.
 # save directory argument
 args = parser.parse_args() 
 
 """
 usage:
-python train_heu.py --a <agent> --t <trainer> --s <path>
+python train_heu.py --a <agent> --t <trainer> --o <opponent> --s <path>
 <agent>, choose {q,s}: 
     q --> q agent
     s --> sarsa agent
 <trainer>, choose {h,r}:
+    h --> heuristic trainer
+    r --> random trainer
+<opponent>, choose {h,r}:
     h --> heuristic trainer
     r --> random trainer
 <path>:
