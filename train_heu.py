@@ -2,16 +2,43 @@ from env import *
 from agents import *
 import tqdm
 from torch.utils.tensorboard import SummaryWriter
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--a', type=str, required=True) # agent type.
+args = parser.parse_args() 
+
+"""
+usage:
+python train_hue.py --a <agent>
+<agent>, choose {q,s}: 
+    q --> q agent
+    s --> sarsa agent
+"""
 
 NUM_EPISODES = 2000000
 ALPHA = 0.01
 GAMMA = 1
 EPS = 0.1
 
+global writer
 writer=SummaryWriter("./log_dir/train/heu")
 
 board = Board()
-agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
+# agent selection based on parameter
+global agent
+if args.a == "q":
+    agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
+elif args.a == "s":
+    #TODO: add sarsa agent here
+    agent = Sarsa_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
+else:
+    print("--- usage ---")
+    print("python train_hue.py --a <agent type>\n <agent type> = {q,s}\n q --> q agent\n s--> sarsa agent")
+    print("--- end usage ---")
+    exit()
+
 other = Heu_Agent(eps=0)
 agent_color = BLACK
 other_color = WHITE
@@ -21,6 +48,8 @@ pbar = tqdm.tqdm(total=NUM_EPISODES)
 num_wins = 0
 num_losses = 0
 num_draws = 0
+
+# TODO: 
 
 for _ in range(NUM_EPISODES): 
     board.reset()
