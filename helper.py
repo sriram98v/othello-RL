@@ -20,6 +20,7 @@ Usage:
 import numpy as np
 import scipy
 from scipy.spatial.distance import hamming
+import os
 
 #____________________________________________________________________________________________________
 # functions/set ups
@@ -55,6 +56,15 @@ def index_to_pos(n):
         return (i,j)
 
 def hamming_distance(array_1, array_2):
+    """Computes hamming distance of two arrays
+
+    Args:
+        array_1 (np.array)
+        array_2 (np.array)
+
+    Returns:
+        int
+    """
     distance = hamming(array_1, array_2)
     return distance
 
@@ -95,6 +105,20 @@ def eps_greedy(best_move, legal_moves, EPSILON):
         return np.random.choice(legal_moves)
     else:
         return best_move
+    
+def get_latest_iter(agent_type, trainer_type, save_dir):
+    """finds the latest trained agent
+
+    Args:
+        agent_type (str): sarsaagent or qagent
+        trainer_type (str): rand or heu
+        save_dir (str): path to checkpointing location
+    return:
+        int: last trained iter
+    """
+    checkpoint_dir = f"{save_dir}/models/{agent_type}/{trainer_type}/"
+    iters = [int(i.split(".")[0].split("_")) for i in os.listdir(checkpoint_dir)]
+    return max(iters)
 
 def main():
     pass

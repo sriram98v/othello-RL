@@ -2,17 +2,68 @@ from env import *
 from agents import *
 import tqdm
 from torch.utils.tensorboard import SummaryWriter
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--a', type=str, required=True) # agent type.
+parser.add_argument('--t', type=str, required=True) # trainer type.
+parser.add_argument('--s', type=str, required=True) # save directory location.
+# save directory argument
+args = parser.parse_args() 
+
+"""
+usage:
+python train_hue.py --a <agent> --t <trainer> --s <path>
+<agent>, choose {q,s}: 
+    q --> q agent
+    s --> sarsa agent
+<trainer>, choose {h,r}:
+    h --> heuristic trainer
+    r --> random trainer
+<path>:
+    for loading model
+    path up until before models/logs
+"""
 
 NUM_EPISODES = 2000000
 ALPHA = 0.01
 GAMMA = 1
 EPS = 0.1
 
-writer=SummaryWriter("./log_dir/train/heu")
-
 board = Board()
-agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
+# agent selection based on parameter
+agent_dir = ""
+agent = Trainable_Agent()
+if args.a == "q":
+    agent = Q_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
+    agent_dir = "qagent"
+elif args.a == "s":
+    agent = Sarsa_Agent(alpha=ALPHA, gamma=GAMMA, eps=EPS)
+    agent_dir = "sarsaagent"
+else:
+    print("--- check usage in code ---")
+    exit()
+
 other = Heu_Agent(eps=0)
+trainer_dir = ""
+if args.a == "h":
+    other = Heu_Agent(eps=0)
+    trainer_dir = "heu"
+elif args.a == "r":
+    other = Rand_Agent()
+    trainer_dir = "rand"
+else:
+    print("--- check usage in code ---")
+    exit()
+
+latest_iter = get_latest_iter(agent_dir, trainer_dir, args.s)
+
+agent.import_model(f"{args.s}/models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_{latest_iter}.pth")
+agent.update_eps(latest_iter)
+
+writer=SummaryWriter(f"./logs/{agent_dir}/{trainer_dir}")
+
 agent_color = BLACK
 other_color = WHITE
 
@@ -84,6 +135,7 @@ for _ in range(NUM_EPISODES):
                              'num_losses': num_losses},
                             _)
     if _%1000==0:
-        agent.export_model(f"./models/qagents/q_agent_vs_heu_{_}.pth")
-agent.export_model(f"./models/qagents/q_agent_vs_heu_final.pth")
+        agent.export_model(f"{args.s}/models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_{_}.pth")
+agent.export_model(f"{args.s}/models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_"+str(NUM_EPISODES)+".pth")
+agent.export_model(f"{args.s}/models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_final.pth")
 
