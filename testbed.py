@@ -11,12 +11,15 @@ parser.add_argument('--a', type=str, required=True) # agent type.
 parser.add_argument('--t', type=str, required=True) # trainer type.
 parser.add_argument('--o', type=str, required=True) # opponent type.
 parser.add_argument('--s', type=str, required=True) # save directory location.
+parser.add_argument('--ep', type=int, required=False) # save directory location.
+parser.add_argument('--step', type=int, required=False) # save directory location.
+
 # save directory argument
 args = parser.parse_args() 
 
 """
 usage:
-python train_heu.py --a <agent> --t <trainer> --o <opponent> --s <path>
+python testbed.py --a <agent> --t <trainer> --o <opponent> --s <path>
 <agent>, choose {q,s}: 
     q --> q agent
     s --> sarsa agent
@@ -105,10 +108,10 @@ def model_score(AgentClass, OpponentClass, modeldir, multiplier=1):
     return score
 
 names = {
-    "q": "qagent",
-    "s": "sarsaagent",
-    "r": "rand",
-    "h": "heu",
+    Q_Agent: "qagent",
+    Sarsa_Agent: "sarsaagent",
+    Rand_Agent: "rand",
+    Heu_Agent: "heu",
 }
 
 def run_test_over_models(AgentClass, TrainerClass, OpponentClass, maxepisode=2000000, episodestep=5000):
@@ -146,7 +149,22 @@ def run_test_over_models(AgentClass, TrainerClass, OpponentClass, maxepisode=200
     return indices, scores
 
 
+reverse = {
+    "q": Q_Agent,
+    "s": Sarsa_Agent,
+    "r": Rand_Agent,
+    "h": Heu_Agent,
+}
 
-
-run_test_over_models(args.a, args.t, args.o)
+if args.ep is None and args.step is None:
+    print("1,2")
+    run_test_over_models(reverse[args.a], reverse[args.t], reverse[args.o], episodestep=args.step)
+elif args.ep is None:
+    print("1")
+    run_test_over_models(reverse[args.a], reverse[args.t], reverse[args.o], episodestep=args.step)
+elif args.step is None:
+    print("2")
+    run_test_over_models(reverse[args.a], reverse[args.t], reverse[args.o], maxepisode=args.ep)
+else:
+    run_test_over_models(reverse[args.a], reverse[args.t], reverse[args.o], args.ep, args.step)
 
