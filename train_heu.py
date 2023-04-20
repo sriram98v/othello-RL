@@ -49,10 +49,10 @@ else:
 
 other = Heu_Agent(eps=0)
 trainer_dir = ""
-if args.a == "h":
+if args.t == "h":
     other = Heu_Agent(eps=0)
     trainer_dir = "heu"
-elif args.a == "r":
+elif args.t == "r":
     other = Rand_Agent()
     trainer_dir = "rand"
 else:
