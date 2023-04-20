@@ -239,7 +239,22 @@ class Sarsa_Agent(Trainable_Agent):
         return loss.item()
     
     def decay_eps_linear(self, num_episodes):
+        """decays epsilon linearly for 1 episode
+
+        Args:
+            num_episodes (int): total number of episodes
+        """
         self.eps -= self.eps_original/num_episodes
+
+    def update_eps(self, n, num_episodes):
+        """decays epsilon for n iterations
+
+        Args:
+            n (int): num iterations
+            num_episodes (int): total number of episodes
+        """
+        for _ in range(n):
+            self.decay_eps_linear(num_episodes)
 
     def export_model(self, fname="./q_model.pth"):
         torch.save(self.model.state_dict(), fname)

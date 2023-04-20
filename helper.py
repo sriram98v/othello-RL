@@ -106,7 +106,7 @@ def eps_greedy(best_move, legal_moves, EPSILON):
     else:
         return best_move
     
-def get_latest_agent(agent_type, trainer_type, save_dir):
+def get_latest_iter(agent_type, trainer_type, save_dir):
     """finds the latest trained agent
 
     Args:
