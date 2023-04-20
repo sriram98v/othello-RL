@@ -117,8 +117,11 @@ def get_latest_iter(agent_type, trainer_type, save_dir):
         int: last trained iter
     """
     checkpoint_dir = f"{save_dir}/models/{agent_type}/{trainer_type}/"
-    iters = [int(i.split(".")[0].split("_")) for i in os.listdir(checkpoint_dir)]
-    return max(iters)
+    iters = [int(i.split(".")[0].split("_")[-1]) for i in os.listdir(checkpoint_dir)]
+    try:
+        return max(iters)
+    except:
+        return 0
 
 def main():
     pass

@@ -47,10 +47,10 @@ else:
 
 other = Heu_Agent(eps=0)
 trainer_dir = ""
-if args.a == "h":
+if args.t == "h":
     other = Heu_Agent(eps=0)
     trainer_dir = "heu"
-elif args.a == "r":
+elif args.t == "r":
     other = Rand_Agent()
     trainer_dir = "rand"
 else:
@@ -59,8 +59,9 @@ else:
 
 latest_iter = get_latest_iter(agent_dir, trainer_dir, args.s)
 
-agent.import_model(f"{args.s}/models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_{latest_iter}.pth")
-agent.update_eps(latest_iter)
+if latest_iter>0:
+    agent.import_model(f"{args.s}/models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_{latest_iter}.pth")
+    agent.update_eps(latest_iter)
 
 writer=SummaryWriter(f"./logs/{agent_dir}/{trainer_dir}")
 
