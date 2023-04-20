@@ -1,4 +1,1 @@
-log_dir/*
 __pycache__/*
-models/qagents
-models/
