@@ -23,6 +23,7 @@ python train_hue.py --a <agent> --t <trainer> --s <path>
     r --> random trainer
 <path>:
     for loading model
+    path up until before models/logs
 """
 
 NUM_EPISODES = 2000000
@@ -59,7 +60,7 @@ else:
     exit()
 
 
-writer=SummaryWriter(f"./logs/{agent_dir}/{train_dir}")
+writer=SummaryWriter(f"{args.s}/logs/{agent_dir}/{train_dir}")
 
 agent_color = BLACK
 other_color = WHITE
@@ -69,8 +70,6 @@ pbar = tqdm.tqdm(total=NUM_EPISODES)
 num_wins = 0
 num_losses = 0
 num_draws = 0
-
-# TODO: load model 
 
 for _ in range(NUM_EPISODES): 
     board.reset()
@@ -134,7 +133,7 @@ for _ in range(NUM_EPISODES):
                              'num_losses': num_losses},
                             _)
     if _%1000==0:
-        agent.export_model(f"./models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_{_}.pth")
-agent.export_model(f"./models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_"+str(NUM_EPISODES)+".pth")
-agent.export_model(f"./models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_final.pth")
+        agent.export_model(f"{args.s}/models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_{_}.pth")
+agent.export_model(f"{args.s}/models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_"+str(NUM_EPISODES)+".pth")
+agent.export_model(f"{args.s}/models/{agent_dir}/{trainer_dir}/{agent_dir}_vs_{trainer_dir}_final.pth")
 
